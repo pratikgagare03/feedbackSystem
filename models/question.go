@@ -2,10 +2,18 @@ package models
 
 import "gorm.io/gorm"
 
+type QuestionType string
+
+const (
+	MCQ       QuestionType = "mcq"
+	TextInput QuestionType = "textinput"
+	Ratings   QuestionType = "ratings"
+)
+
 type Question struct {
 	gorm.Model
-	QuestionContent string
-	QuestionType    string
-	Status          string
+	FeedbackID      uint
+	Feedback        Feedback `gorm:"foreignKey:FeedbackID"`
+	QuestionContent []byte
+	QuestionType    QuestionType
 }
-

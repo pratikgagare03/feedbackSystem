@@ -1,22 +1,33 @@
 package main
 
 import (
-	"log"
+	"os"
 
-	"github.com/pratikgagare03/feedback/database"
-	"github.com/pratikgagare03/feedback/models"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/pratikgagare03/feedback/handlers"
+	"github.com/pratikgagare03/feedback/logger"
 )
 
+func setupRoutes(router *gin.Engine) {
+	apiGroup := router.Group("/api")
+	{
+		userGroup := apiGroup.Group("/user")
+		{
+			userGroup.POST("/create", handlers.CreateUser)
+		}
+	}
+
+}
 func main() {
-	db, err := database.Setup()
+	logger.Logs.Info().Msg("Started Main")
+	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println(err)
+		logger.Logs.Error().Err(err)
 	}
-	db.AutoMigrate(models.Question{})
-	q1 := models.Question{
-		QuestionContent: "How are you",
-		QuestionType:    "mcq",
-		Status:          "unattempted",
-	}
-	db.Create(&q1)
+	defer logger.File.Close()
+	router := gin.Default()
+	setupRoutes(router)
+	router.Run(os.Getenv("APP_PORT"))
+	logger.Logs.Info().Msg("Main Function over")
 }

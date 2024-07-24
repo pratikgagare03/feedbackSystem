@@ -11,7 +11,7 @@ import (
 
 func Setup() (*gorm.DB, error) {
 	godotenv.Load(".env")
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", os.Getenv("Host"), os.Getenv("Port"), os.Getenv("User"), os.Getenv("Name"))
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable", os.Getenv("HOST"), os.Getenv("DBPORT"), os.Getenv("DBUSER"), os.Getenv("DBNAME"))
 
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {

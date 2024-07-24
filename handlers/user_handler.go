@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"net/mail"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/models"
@@ -17,8 +18,27 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repository.GetUserRepository().InsertUser(context.TODO(), &UserInput)
-	c.JSON(http.StatusCreated, gin.H{"message":"user created successfully"})
+	if UserInput.Email == "" || UserInput.Password == "" {
+		log.Printf("ERROR %+v", "empty username or password")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "empty username or password"})
+		return
+	}
+	_, err := mail.ParseAddress(UserInput.Email)
+	if err != nil {
+		log.Printf("ERROR %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if len(UserInput.Username) == 0 {
+		UserInput.Username = UserInput.Email
+	}
+	err = repository.GetUserRepository().InsertUser(context.TODO(), &UserInput)
+	if err != nil {
+		log.Printf("ERROR %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"message": "user created successfully"})
 }
 
 func GetuserHandler(c *gin.Context) {

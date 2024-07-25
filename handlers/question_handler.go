@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/models"
 )
+
 func CreateQuestion(c *gin.Context) {
 	var que models.Question
 	c.JSON(http.StatusCreated, que)

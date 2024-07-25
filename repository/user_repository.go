@@ -19,9 +19,9 @@ func init() {
 }
 
 type UserRepository interface {
-	InsertUser(ctx context.Context, user *models.UserInput) error
+	InsertUser(ctx context.Context, user *models.User) error
 	FindUserByID(ctx context.Context, userID string) (*models.User, error)
-	UpdateUser(ctx context.Context, user *models.UserInput) error
+	UpdateUser(ctx context.Context, user *models.User) error
 	DeleteUser(ctx context.Context, userID string) error
 	GetUsers(tagcontains string) ([]models.User, error)
 }
@@ -46,18 +46,13 @@ func (p *postgresUserRepository) GetUsers(tagcontains string) ([]models.User, er
 }
 
 // InsertUser implements UserRepository.
-func (p *postgresUserRepository) InsertUser(ctx context.Context, user *models.UserInput) error {
-	var newUser = models.User{
-		Username: user.Username,
-		Email:    user.Email,
-		Password: user.Password,
-	}
-	res := Db.Create(&newUser)
+func (p *postgresUserRepository) InsertUser(ctx context.Context, user *models.User) error {
+	res := Db.Create(&user)
 	return res.Error
 }
 
 // UpdateUser implements UserRepository.
-func (p *postgresUserRepository) UpdateUser(ctx context.Context, user *models.UserInput) error {
+func (p *postgresUserRepository) UpdateUser(ctx context.Context, user *models.User) error {
 	panic("unimplemented")
 }
 

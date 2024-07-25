@@ -17,3 +17,13 @@ type Question struct {
 	QuestionContent []byte
 	QuestionType    QuestionType
 }
+type QuestionInput struct {
+	QuestionContent string
+	QuestionType    string
+	Options         []string
+}
+
+type McqQusetionContent struct {
+	QuestionContent string
+	Options         []string
+}

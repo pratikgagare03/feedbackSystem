@@ -7,38 +7,51 @@ import (
 	"net/mail"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
 )
 
+var validate = validator.New()
+
 func CreateUser(c *gin.Context) {
-	var UserInput models.UserInput
-	if err := c.ShouldBindJSON(&UserInput); err != nil {
+	var User models.User
+	if err := c.ShouldBindJSON(&User); err != nil {
 		log.Printf("ERROR %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if UserInput.Email == "" || UserInput.Password == "" {
+	err := validate.Struct(User)
+	if err != nil {
+		log.Printf("ERROR %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if User.Email == "" || User.Password == "" {
 		log.Printf("ERROR %+v", "empty username or password")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "empty username or password"})
 		return
 	}
-	_, err := mail.ParseAddress(UserInput.Email)
+	_, err = mail.ParseAddress(User.Email)
 	if err != nil {
 		log.Printf("ERROR %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if len(UserInput.Username) == 0 {
-		UserInput.Username = UserInput.Email
+	if User.Username == "" {
+		User.Username = User.Email
+		log.Print("No username provided, Used email as username")
 	}
-	err = repository.GetUserRepository().InsertUser(context.TODO(), &UserInput)
+
+	err = repository.GetUserRepository().InsertUser(context.TODO(), &User)
+
 	if err != nil {
 		log.Printf("ERROR %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "user created successfully"})
+
+	c.JSON(http.StatusCreated, User)
 }
 
 func GetuserHandler(c *gin.Context) {

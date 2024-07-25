@@ -15,7 +15,14 @@ func setupRoutes(router *gin.Engine) {
 		userGroup := apiGroup.Group("/user")
 		{
 			userGroup.POST("/create", handlers.CreateUser)
+
+			feedbackGroup := userGroup.Group("/:userId/feedback")
+			{
+				feedbackGroup.POST("/create", handlers.CreateFeedback)
+				// feedbackGroup.POST("/:{feedbackId}/addQuestion", handlers.AddQuestion)
+			}
 		}
+
 	}
 
 }

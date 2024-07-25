@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/helper"
@@ -39,8 +40,8 @@ func CreateFeedback(c *gin.Context) {
 		return
 	}
 	var finalFeedback models.Feedback
-	// userIdInt, _ := strconv.Atoi(userId)
-	finalFeedback.UserID = 4
+	userIdInt, _ := strconv.Atoi(userId)
+	finalFeedback.UserID = uint(userIdInt)
 	log.Println("hello:", finalFeedback.UserID)
 
 	err = repository.GetFeedbackRepository().InsertFeedback(context.TODO(), &finalFeedback)

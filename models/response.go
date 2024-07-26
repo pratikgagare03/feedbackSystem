@@ -4,9 +4,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type Response struct {
+type FeedbackResponse struct {
 	gorm.Model
+	UserID     uint
+	User       User `gorm:"foreignKey:UserID" json:"-"`
 	FeedbackID uint
-	QuestionID uint
-	Response   string
+	Feedback   Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
+	QuestionId string
+	Answer     string
 }

@@ -16,10 +16,9 @@ import (
 
 func CreateFeedback(c *gin.Context) {
 	userId := c.Param("userId")
-	log.Println("hello:", userId)
-	if !utils.IsValidUser(userId) {
-		log.Printf("ERROR %+v is not a valid userId", userId)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid userId"})
+	if ok, err := utils.IsValidUser(userId); !ok {
+		log.Printf("ERROR:invalid userId %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	var newFeedback models.FeedbackInput
@@ -34,9 +33,9 @@ func CreateFeedback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if len(newFeedback.Questions) < 2 {
-		log.Println("ERROR: atleast two questions required")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "atleast two questions required"})
+	if len(newFeedback.Questions) == 0 {
+		log.Println("ERROR: atleast 1 questions required")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 1 questions required"})
 		return
 	}
 	var finalFeedback models.Feedback
@@ -52,6 +51,12 @@ func CreateFeedback(c *gin.Context) {
 	}
 
 	for _, questionInput := range newFeedback.Questions {
+		if len(questionInput.QuestionContent) == 0 {
+			log.Println("ERROR: Question cannot be empty")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Question cannot be empty"})
+			return
+		}
+
 		var question models.Question
 		qtype, err := helper.GetQuestionType(questionInput.QuestionType)
 		if err != nil {
@@ -66,7 +71,13 @@ func CreateFeedback(c *gin.Context) {
 		switch qtype {
 		case models.MCQ:
 			{
-				question.QuestionContent, _ = json.Marshal(models.McqQusetionContent{
+				if len(questionInput.Options) < 2 {
+					log.Println("ERROR: atleast 2 options required in mcq")
+					c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 2 options required in mcq"})
+					return
+				}
+
+				question.QuestionContent, _ = json.Marshal(models.McqQuestionContent{
 					QuestionContent: questionInput.QuestionContent,
 					Options:         questionInput.Options,
 				})
@@ -77,8 +88,29 @@ func CreateFeedback(c *gin.Context) {
 			}
 
 		}
-
+		repository.GetQuestionRepository().InsertQuestion(context.TODO(), &question)
 	}
-	// repository.GetFeedbackRepository().InsertFeedback(context.TODO(), &newFeedback)
 	c.JSON(http.StatusCreated, finalFeedback)
+}
+
+func GetFeedback(c *gin.Context) {
+	userId := c.Param("userId")
+	feedbackId := c.Param("feedbackId")
+	if ok, err := utils.IsValidUser(userId); !ok {
+		log.Printf("ERROR:invalid userId %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if ok, err := utils.IsValidFeedbackId(feedbackId); !ok {
+		log.Printf("ERROR:invalid feedbackId %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	feedback, err := repository.GetQuestionRepository().GetQuestionsByFeedbackID(context.TODO(), feedbackId)
+	if err != nil || len(feedback) == 0 {
+		log.Printf("ERROR %+v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusFound, feedback)
 }

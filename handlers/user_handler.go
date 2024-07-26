@@ -28,8 +28,8 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	if User.Email == "" || User.Password == "" {
-		log.Printf("ERROR %+v", "empty username or password")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "empty username or password"})
+		log.Printf("ERROR %+v", "empty email or password")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "empty email or password"})
 		return
 	}
 	_, err = mail.ParseAddress(User.Email)

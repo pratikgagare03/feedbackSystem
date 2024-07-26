@@ -9,7 +9,7 @@ import (
 
 type FeedbackRepository interface {
 	InsertFeedback(ctx context.Context, feedback *models.Feedback) error
-	FindFeedbackByID(ctx context.Context, feedbackID string) (*models.Feedback, error)
+	FindFeedbackByID(ctx context.Context, feedbackID string) (models.Feedback, error)
 	UpdateFeedback(ctx context.Context, feedback *models.Feedback) error
 	DeleteFeedback(ctx context.Context, feedbackID string) error
 	GetFeedbacks(tagcontains string) ([]models.Feedback, error)
@@ -25,8 +25,10 @@ func (p *postgresFeedbackRepository) DeleteFeedback(ctx context.Context, feedbac
 }
 
 // FindFeedbackByID implements FeedbackRepository.
-func (p *postgresFeedbackRepository) FindFeedbackByID(ctx context.Context, feedbackID string) (*models.Feedback, error) {
-	panic("unimplemented")
+func (p *postgresFeedbackRepository) FindFeedbackByID(ctx context.Context, feedbackID string) (models.Feedback, error) {
+	var fd models.Feedback
+	res := Db.First(&fd, feedbackID)
+	return fd, res.Error
 }
 
 // GetFeedbacks implements FeedbackRepository.

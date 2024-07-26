@@ -37,7 +37,9 @@ func (p *postgresUserRepository) DeleteUser(ctx context.Context, userID string) 
 
 // FindUserByID implements UserRepository.
 func (p *postgresUserRepository) FindUserByID(ctx context.Context, userID string) (*models.User, error) {
-	panic("unimplemented")
+	var user models.User
+	res := Db.First(&user, userID)
+	return &user, res.Error
 }
 
 // GetUsers implements UserRepository.

@@ -13,7 +13,7 @@ const (
 type Question struct {
 	gorm.Model
 	FeedbackID      uint
-	Feedback        Feedback `gorm:"foreignKey:FeedbackID"`
+	Feedback        Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
 	QuestionContent []byte
 	QuestionType    QuestionType
 }
@@ -23,7 +23,14 @@ type QuestionInput struct {
 	Options         []string
 }
 
-type McqQusetionContent struct {
+type McqQuestionContent struct {
 	QuestionContent string
+	Options         []string
+}
+
+type QuestionDetailed struct {
+	QuestionId      uint
+	QuestionContent string
+	QuestionType    QuestionType
 	Options         []string
 }

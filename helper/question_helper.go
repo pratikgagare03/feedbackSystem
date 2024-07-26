@@ -15,7 +15,7 @@ func GetQuestionType(s string) (models.QuestionType, error) {
 	case "ratings":
 		return models.Ratings, nil
 	default:
-		return "", errors.New("Invalid question type, required enum(\"mcq\",\"textinput\",\"ratings\")")
+		return "", errors.New("invalid question type, required enum(\"mcq\",\"textinput\",\"ratings\")")
 
 	}
 }

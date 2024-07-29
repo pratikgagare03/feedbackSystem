@@ -86,4 +86,5 @@ func GetAllResponses(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ERROR: No responses present."})
 		return
 	}
+	//working
 }

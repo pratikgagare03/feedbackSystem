@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -43,7 +42,7 @@ func CreateFeedback(c *gin.Context) {
 	finalFeedback.UserID = uint(userIdInt)
 	log.Println("hello:", finalFeedback.UserID)
 
-	err = repository.GetFeedbackRepository().InsertFeedback(context.TODO(), &finalFeedback)
+	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
 	if err != nil {
 		log.Printf("ERROR %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -88,7 +87,7 @@ func CreateFeedback(c *gin.Context) {
 			}
 
 		}
-		repository.GetQuestionRepository().InsertQuestion(context.TODO(), &question)
+		repository.GetQuestionRepository().InsertQuestion(&question)
 	}
 	c.JSON(http.StatusCreated, finalFeedback)
 }
@@ -106,7 +105,7 @@ func GetFeedback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	feedback, err := repository.GetQuestionRepository().GetQuestionsByFeedbackID(context.TODO(), feedbackId)
+	feedback, err := repository.GetQuestionRepository().GetQuestionsByFeedbackID(feedbackId)
 	if err != nil || len(feedback) == 0 {
 		log.Printf("ERROR %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

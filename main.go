@@ -20,8 +20,8 @@ func setupRoutes(router *gin.Engine) {
 			{
 				feedbackGroup.POST("/create", handlers.CreateFeedback)
 				// feedbackGroup.POST("/:{feedbackId}/addQuestion", handlers.AddQuestion)
-				feedbackGroup.GET("/:feedbackId", handlers.SaveFeedbackResponse)
-				// feedbackGroup.GET("/:feedbackId/respond", handlers.AnswerFeedback)
+				feedbackGroup.GET("/:feedbackId", handlers.GetFeedback)
+				feedbackGroup.POST("/:feedbackId/respond", handlers.SaveFeedbackResponse)
 			}
 		}
 

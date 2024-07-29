@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"context"
-
 	"github.com/pratikgagare03/feedback/database"
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
@@ -19,10 +17,10 @@ func init() {
 }
 
 type UserRepository interface {
-	InsertUser(ctx context.Context, user *models.User) error
-	FindUserByID(ctx context.Context, userID string) (*models.User, error)
-	UpdateUser(ctx context.Context, user *models.User) error
-	DeleteUser(ctx context.Context, userID string) error
+	InsertUser(user *models.User) error
+	FindUserByID(userID string) (*models.User, error)
+	UpdateUser(user *models.User) error
+	DeleteUser(userID string) error
 	GetUsers(tagcontains string) ([]models.User, error)
 }
 
@@ -31,12 +29,12 @@ type postgresUserRepository struct {
 }
 
 // DeleteUser implements UserRepository.
-func (p *postgresUserRepository) DeleteUser(ctx context.Context, userID string) error {
+func (p *postgresUserRepository) DeleteUser(userID string) error {
 	panic("unimplemented")
 }
 
 // FindUserByID implements UserRepository.
-func (p *postgresUserRepository) FindUserByID(ctx context.Context, userID string) (*models.User, error) {
+func (p *postgresUserRepository) FindUserByID(userID string) (*models.User, error) {
 	var user models.User
 	res := Db.First(&user, userID)
 	return &user, res.Error
@@ -48,13 +46,13 @@ func (p *postgresUserRepository) GetUsers(tagcontains string) ([]models.User, er
 }
 
 // InsertUser implements UserRepository.
-func (p *postgresUserRepository) InsertUser(ctx context.Context, user *models.User) error {
+func (p *postgresUserRepository) InsertUser(user *models.User) error {
 	res := Db.Create(&user)
 	return res.Error
 }
 
 // UpdateUser implements UserRepository.
-func (p *postgresUserRepository) UpdateUser(ctx context.Context, user *models.User) error {
+func (p *postgresUserRepository) UpdateUser(user *models.User) error {
 	panic("unimplemented")
 }
 

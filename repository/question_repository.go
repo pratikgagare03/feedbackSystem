@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"encoding/json"
 
 	"github.com/pratikgagare03/feedback/models"
@@ -9,11 +8,12 @@ import (
 )
 
 type QuestionRepository interface {
-	InsertQuestion(ctx context.Context, question *models.Question) error
-	FindQuestionByID(ctx context.Context, questionID string) (*models.Question, error)
-	GetQuestionsByFeedbackID(ctx context.Context, questionID string) ([]models.QuestionDetailed, error)
-	UpdateQuestion(ctx context.Context, question *models.Question) error
-	DeleteQuestion(ctx context.Context, questionID string) error
+	InsertQuestion(question *models.Question) error
+	FindQuestionByID(questionID string) (*models.Question, error)
+	FindQuestionByQuestionIdFeedbackId(questionID string, feedbackID string) ([]models.Question, error)
+	GetQuestionsByFeedbackID(questionID string) ([]models.QuestionDetailed, error)
+	UpdateQuestion(question *models.Question) error
+	DeleteQuestion(questionID string) error
 	GetQuestions(tagcontains string) ([]models.Question, error)
 }
 
@@ -21,8 +21,15 @@ type postgresQuestionRepository struct {
 	postgresDb *gorm.DB
 }
 
+// FindQuestionByQuestionIdFeedbackId implements QuestionRepository.
+func (p *postgresQuestionRepository) FindQuestionByQuestionIdFeedbackId(questionID string, feedbackID string) ([]models.Question, error) {
+	var matchingQuestions []models.Question
+	res := Db.Where("id = ? AND feedback_id = ?", questionID, feedbackID).Find(&matchingQuestions)
+	return matchingQuestions, res.Error
+}
+
 // GetQuestionsByFeedbackID implements QuestionRepository.
-func (p *postgresQuestionRepository) GetQuestionsByFeedbackID(ctx context.Context, feedbackID string) ([]models.QuestionDetailed, error) {
+func (p *postgresQuestionRepository) GetQuestionsByFeedbackID(feedbackID string) ([]models.QuestionDetailed, error) {
 	var questions []models.Question
 	res := Db.Where("feedback_id = ?", feedbackID).Find(&questions)
 
@@ -48,12 +55,12 @@ func (p *postgresQuestionRepository) GetQuestionsByFeedbackID(ctx context.Contex
 }
 
 // DeleteQuestion implements QuestionRepository.
-func (p *postgresQuestionRepository) DeleteQuestion(ctx context.Context, questionID string) error {
+func (p *postgresQuestionRepository) DeleteQuestion(questionID string) error {
 	panic("unimplemented")
 }
 
 // FindQuestionByID implements QuestionRepository.
-func (p *postgresQuestionRepository) FindQuestionByID(ctx context.Context, questionID string) (*models.Question, error) {
+func (p *postgresQuestionRepository) FindQuestionByID(questionID string) (*models.Question, error) {
 	panic("unimplemented")
 }
 
@@ -63,13 +70,13 @@ func (p *postgresQuestionRepository) GetQuestions(tagcontains string) ([]models.
 }
 
 // InsertQuestion implements QuestionRepository.
-func (p *postgresQuestionRepository) InsertQuestion(ctx context.Context, question *models.Question) error {
+func (p *postgresQuestionRepository) InsertQuestion(question *models.Question) error {
 	res := Db.Create(&question)
 	return res.Error
 }
 
 // UpdateQuestion implements QuestionRepository.
-func (p *postgresQuestionRepository) UpdateQuestion(ctx context.Context, question *models.Question) error {
+func (p *postgresQuestionRepository) UpdateQuestion(question *models.Question) error {
 	panic("unimplemented")
 }
 

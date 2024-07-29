@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"net/mail"
@@ -43,7 +42,7 @@ func CreateUser(c *gin.Context) {
 		log.Print("No username provided, Used email as username")
 	}
 
-	err = repository.GetUserRepository().InsertUser(context.TODO(), &User)
+	err = repository.GetUserRepository().InsertUser(&User)
 
 	if err != nil {
 		log.Printf("ERROR %+v", err)

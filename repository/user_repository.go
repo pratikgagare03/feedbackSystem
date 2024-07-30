@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/google/uuid"
 	"github.com/pratikgagare03/feedback/database"
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
@@ -19,13 +20,28 @@ func init() {
 type UserRepository interface {
 	InsertUser(user *models.User) error
 	FindUserByID(userID string) (*models.User, error)
-	UpdateUser(user *models.User) error
+	FindUserByUuid(userID uuid.UUID) (*models.User, error)
+	FindUserByEmail(email string) (*models.User, error)
 	DeleteUser(userID string) error
 	GetUsers(tagcontains string) ([]models.User, error)
 }
 
 type postgresUserRepository struct {
 	postgresDb *gorm.DB
+}
+
+// FindUserByUuid implements UserRepository.
+func (p *postgresUserRepository) FindUserByUuid(userID uuid.UUID) (*models.User, error) {
+	var user = models.User{UserId: userID}
+	res := Db.First(&user)
+	return &user, res.Error
+}
+
+// FindUserByEmail implements UserRepository.
+func (p *postgresUserRepository) FindUserByEmail(email string) (*models.User, error) {
+	var user = models.User{Email: email}
+	res := Db.First(&user)
+	return &user, res.Error
 }
 
 // DeleteUser implements UserRepository.
@@ -52,9 +68,6 @@ func (p *postgresUserRepository) InsertUser(user *models.User) error {
 }
 
 // UpdateUser implements UserRepository.
-func (p *postgresUserRepository) UpdateUser(user *models.User) error {
-	panic("unimplemented")
-}
 
 func newPostgresUserRepository(db *gorm.DB) UserRepository {
 	return &postgresUserRepository{

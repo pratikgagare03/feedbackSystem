@@ -9,7 +9,7 @@ import (
 
 func Authenticate(c *gin.Context) {
 	clientToken, err := c.Cookie("token")
-	if err!=nil ||clientToken == "" {
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No cookie found, please login"})
 		c.Abort()
 		return
@@ -17,7 +17,7 @@ func Authenticate(c *gin.Context) {
 
 	claims, msg := helper.ValidateToken(clientToken)
 	if msg != "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error":msg})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		c.Abort()
 		return
 	}

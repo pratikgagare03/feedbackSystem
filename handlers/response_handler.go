@@ -12,13 +12,8 @@ import (
 )
 
 func SaveFeedbackResponse(c *gin.Context) {
-	userId := c.Param("userId")
-	if ok, err := utils.IsValidUser(userId); !ok {
-		log.Printf("ERROR:invalid userId %+v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 	feedbackID := c.Param("feedbackId")
+	userId := c.GetUint("uid")
 	if ok, err := utils.IsValidFeedbackId(feedbackID); !ok {
 		log.Printf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -43,14 +38,13 @@ func SaveFeedbackResponse(c *gin.Context) {
 		return
 	}
 
-	userIdInt, _ := strconv.Atoi(userId)
 	feedbackIdInt, _ := strconv.Atoi(feedbackID)
 
 	var arrResponseDb []models.FeedbackResponse
 
 	for _, qna := range responseInput.QuestionAnswer {
 		var responseDb models.FeedbackResponse
-		responseDb.UserID = uint(userIdInt)
+		responseDb.UserID = userId
 		responseDb.FeedbackID = uint(feedbackIdInt)
 		responseDb.QuestionID = qna.QuestionID
 		if questions, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(qna.QuestionID, feedbackID); len(questions) == 0 {

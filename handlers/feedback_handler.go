@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/helper"
@@ -14,12 +13,6 @@ import (
 )
 
 func CreateFeedback(c *gin.Context) {
-	userId := c.Param("userId")
-	if ok, err := utils.IsValidUser(userId); !ok {
-		log.Printf("ERROR:invalid userId %+v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 	var newFeedback models.FeedbackInput
 	if err := c.ShouldBindJSON(&newFeedback); err != nil {
 		log.Printf("ERROR %+v", err)
@@ -38,8 +31,8 @@ func CreateFeedback(c *gin.Context) {
 		return
 	}
 	var finalFeedback models.Feedback
-	userIdInt, _ := strconv.Atoi(userId)
-	finalFeedback.UserID = uint(userIdInt)
+
+	finalFeedback.UserID = c.GetUint("uid")
 	log.Println("hello:", finalFeedback.UserID)
 
 	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
@@ -93,13 +86,7 @@ func CreateFeedback(c *gin.Context) {
 }
 
 func GetFeedback(c *gin.Context) {
-	userId := c.Param("userId")
 	feedbackId := c.Param("feedbackId")
-	if ok, err := utils.IsValidUser(userId); !ok {
-		log.Printf("ERROR:invalid userId %+v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 	if ok, err := utils.IsValidFeedbackId(feedbackId); !ok {
 		log.Printf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

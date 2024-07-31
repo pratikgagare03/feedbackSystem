@@ -28,7 +28,7 @@ func IsValidFeedbackId(feedbackId string) (bool, error) {
 	return true, nil
 }
 
-func ResponseExistForUser(feedbackID string, userID string) bool {
+func ResponseExistForUser(feedbackID string, userID uint) bool {
 	responses, err := repository.GetResponseRepository().FindResponseByUserIdFeedbackId(userID, feedbackID)
 	if len(responses) != 0 && err != gorm.ErrRecordNotFound {
 		return true

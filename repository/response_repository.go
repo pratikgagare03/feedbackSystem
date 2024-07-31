@@ -8,7 +8,7 @@ import (
 type ResponseRepository interface {
 	InsertResponse(response []models.FeedbackResponse) error
 	FindResponseByID(responseID string) (models.FeedbackResponse, error)
-	FindResponseByUserIdFeedbackId(userID string, feedbackID string) ([]models.FeedbackResponse, error)
+	FindResponseByUserIdFeedbackId(userID uint, feedbackID string) ([]models.FeedbackResponse, error)
 	FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error)
 	UpdateResponse(response *models.FeedbackResponse) error
 	DeleteResponse(responseID string) error
@@ -27,7 +27,7 @@ func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string)
 }
 
 // FindResponseByUserIdFeedbackId implements ResponseRepository.
-func (p *postgresResponseRepository) FindResponseByUserIdFeedbackId(userID string, feedbackID string) ([]models.FeedbackResponse, error) {
+func (p *postgresResponseRepository) FindResponseByUserIdFeedbackId(userID uint, feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
 	res := Db.Where("feedback_id = ? AND user_id = ?", feedbackID, userID).Find(&matchingResponses)
 	return matchingResponses, res.Error

@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"github.com/pratikgagare03/feedback/helper"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
@@ -50,26 +49,26 @@ func SignUp(c *gin.Context) {
 
 	_, err := repository.GetUserRepository().FindUserByEmail(user.Email)
 	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Panic(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while searching for email."})
 		return
 	} else if err != gorm.ErrRecordNotFound {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "this email already exists."})
+		return
 	}
 	hashedPass := HashPassword(user.Password)
 	user.Password = hashedPass
-	user.UserId = uuid.New()
-	token, refreshToken, err := helper.GenerateAllTokens(user.Email, user.First_name, user.Last_name, user.User_type, user.UserId)
-	if err != nil {
-		msg := fmt.Sprintf("failed to generate token")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-		return
-	}
-	user.Token = token
-	user.Refresh_token = refreshToken
+
+	// token, refreshToken, err := helper.GenerateAllTokens(user.Email, user.First_name, user.Last_name, user.User_type, user.UserId)
+	// if err != nil {
+	// 	msg := fmt.Sprintf("failed to generate token")
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+	// 	return
+	// }
+	// user.Refresh_token = refreshToken
+
 	err = repository.GetUserRepository().InsertUser(&user)
 	if err != nil {
-		msg := fmt.Sprintf("User item was not created")
+		msg := "User item was not created"
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
 	}
@@ -80,7 +79,7 @@ func Login(c *gin.Context) {
 	var user models.User
 	var foundUser *models.User
 
-	if err := c.BindJSON(user); err != nil {
+	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -101,14 +100,16 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
 		return
 	}
-	token, refreshToken, err := helper.GenerateAllTokens(foundUser.Email, foundUser.First_name, foundUser.Last_name, foundUser.User_type, foundUser.UserId)
+	token, claims, err := helper.GenerateAllTokens(foundUser.Email, foundUser.First_name, foundUser.Last_name, foundUser.User_type, foundUser.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token	"})
 		return
 	}
+	c.SetCookie("token", token, int(claims.ExpiresAt), "/", "", true, true)
+	// c.SetCookie("refresf_token", refreshToken, int(claims.ExpiresAt), "/", "", true, true)
 
-	helper.UpdateAllTokens(token, refreshToken, foundUser.UserId)
-	foundUser, err = repository.GetUserRepository().FindUserByUuid(foundUser.UserId)
+	helper.UpdateAllTokens(token, foundUser.ID)
+	foundUser, err = repository.GetUserRepository().FindUserByID(foundUser.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -132,9 +133,16 @@ func GetUsers(c *gin.Context) {
 		page = 1
 	}
 
-	startIndex := (page - 1) * recordsPerPage
-	startIndex, err = strconv.Atoi(c.Query("startIndex"))
-	//pratik working
+	startIndex, err := strconv.Atoi(c.Query("startIndex"))
+	if err != nil || startIndex < 1 {
+		startIndex = (page - 1) * recordsPerPage
+	}
+	users, err := repository.GetUserRepository().GetAllUsersByOffsetLimit(startIndex, recordsPerPage)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
+		return
+	}
+	c.JSON(http.StatusOK, users)
 }
 
 func GetUser(c *gin.Context) {
@@ -143,11 +151,13 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	var user *models.User
-	user, err := repository.GetUserRepository().FindUserByID(userId)
+	userIdInt, err := strconv.Atoi(userId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"errpr": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	user, err := repository.GetUserRepository().FindUserByID(uint(userIdInt))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

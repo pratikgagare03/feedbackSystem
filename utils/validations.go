@@ -1,12 +1,18 @@
 package utils
 
 import (
+	"strconv"
+
 	"github.com/pratikgagare03/feedback/repository"
 	"gorm.io/gorm"
 )
 
 func IsValidUser(userId string) (bool, error) {
-	_, err := repository.GetUserRepository().FindUserByID(userId)
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		return false, err
+	}
+	_, err = repository.GetUserRepository().FindUserByID(uint(userIdInt))
 	if err != nil || err == gorm.ErrRecordNotFound {
 		return false, err
 	}

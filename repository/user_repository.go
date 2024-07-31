@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/google/uuid"
 	"github.com/pratikgagare03/feedback/database"
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
@@ -19,11 +18,10 @@ func init() {
 
 type UserRepository interface {
 	InsertUser(user *models.User) error
-	FindUserByID(userID string) (*models.User, error)
-	FindUserByUuid(userID uuid.UUID) (*models.User, error)
+	FindUserByID(userID uint) (*models.User, error)
 	FindUserByEmail(email string) (*models.User, error)
 	DeleteUser(userID string) error
-	GetUsers(tagcontains string) ([]models.User, error)
+	GetAllUsersByOffsetLimit(offset, limit int) ([]models.User, error)
 }
 
 type postgresUserRepository struct {
@@ -31,16 +29,11 @@ type postgresUserRepository struct {
 }
 
 // FindUserByUuid implements UserRepository.
-func (p *postgresUserRepository) FindUserByUuid(userID uuid.UUID) (*models.User, error) {
-	var user = models.User{UserId: userID}
-	res := Db.First(&user)
-	return &user, res.Error
-}
 
 // FindUserByEmail implements UserRepository.
 func (p *postgresUserRepository) FindUserByEmail(email string) (*models.User, error) {
-	var user = models.User{Email: email}
-	res := Db.First(&user)
+	var user models.User
+	res := Db.First(&user, "email=?", email)
 	return &user, res.Error
 }
 
@@ -50,15 +43,18 @@ func (p *postgresUserRepository) DeleteUser(userID string) error {
 }
 
 // FindUserByID implements UserRepository.
-func (p *postgresUserRepository) FindUserByID(userID string) (*models.User, error) {
+func (p *postgresUserRepository) FindUserByID(userID uint) (*models.User, error) {
 	var user models.User
-	res := Db.First(&user, userID)
+	user.ID = userID
+	res := Db.First(&user)
 	return &user, res.Error
 }
 
 // GetUsers implements UserRepository.
-func (p *postgresUserRepository) GetUsers(tagcontains string) ([]models.User, error) {
-	panic("unimplemented")
+func (p *postgresUserRepository) GetAllUsersByOffsetLimit(offset, limit int) ([]models.User, error) {
+	var users []models.User
+	res := Db.Offset(offset).Limit(limit).Find(&users)
+	return users, res.Error
 }
 
 // InsertUser implements UserRepository.

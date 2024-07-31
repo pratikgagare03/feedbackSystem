@@ -5,7 +5,7 @@ import (
 	"github.com/pratikgagare03/feedback/handlers"
 )
 
-func AuthRoutes(incomingRoutes *gin.Engine){
+func AuthRoutes(incomingRoutes *gin.RouterGroup) {
 	incomingRoutes.POST("users/signup", handlers.SignUp)
-	incomingRoutes.POST("users/signin", handlers.Login)
+	incomingRoutes.POST("users/login", handlers.Login)
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
 	"github.com/pratikgagare03/feedback/utils"
@@ -17,25 +18,25 @@ func SaveFeedbackResponse(c *gin.Context) {
 	feedbackID := c.Param("feedbackId")
 	userId := c.GetUint("uid")
 	if ok, err := utils.IsValidFeedbackId(feedbackID); !ok {
-		log.Printf("ERROR:invalid feedbackId %+v", err)
+		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if ok := utils.ResponseExistForUser(feedbackID, userId); ok {
-		log.Print("ERROR: A Response already exist.")
+		logger.Logs.Error().Msg("ERROR: A Response already exist.")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ERROR: A Response already exist."})
 		return
 	}
 
 	var responseInput models.FeedbackResponseInput
 	if err := c.ShouldBindJSON(&responseInput); err != nil {
-		log.Printf("ERROR %+v", err)
+		logger.Logs.Error().Msgf("ERROR: %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	err := validate.Struct(responseInput)
 	if err != nil {
-		log.Printf("ERROR %+v", err)
+		logger.Logs.Error().Msgf("ERROR: %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

@@ -2,31 +2,32 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/helper"
+	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
 	"github.com/pratikgagare03/feedback/utils"
 )
 
 func CreateFeedback(c *gin.Context) {
+	logger.Logs.Info().Msg("Creating feedback")
 	var newFeedback models.FeedbackInput
 	if err := c.ShouldBindJSON(&newFeedback); err != nil {
-		log.Printf("ERROR %+v", err)
+		logger.Logs.Error().Msgf("Error while binding json: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	err := validate.Struct(newFeedback)
 	if err != nil {
-		log.Printf("ERROR %+v", err)
+		logger.Logs.Error().Msgf("Error while validating feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	if len(newFeedback.Questions) == 0 {
-		log.Println("ERROR: atleast 1 questions required")
+		logger.Logs.Error().Msg("atleast 1 questions required")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 1 questions required"})
 		return
 	}
@@ -36,14 +37,14 @@ func CreateFeedback(c *gin.Context) {
 
 	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
 	if err != nil {
-		log.Printf("ERROR %+v", err)
+		logger.Logs.Error().Msgf("Error while inserting feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	for _, questionInput := range newFeedback.Questions {
 		if len(questionInput.QuestionContent) == 0 {
-			log.Println("ERROR: Question cannot be empty")
+			logger.Logs.Error().Msg("Question cannot be empty")
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Question cannot be empty"})
 			return
 		}
@@ -51,7 +52,7 @@ func CreateFeedback(c *gin.Context) {
 		var question models.Question
 		qtype, err := helper.GetQuestionType(questionInput.QuestionType)
 		if err != nil {
-			log.Printf("ERROR %+v", err)
+			logger.Logs.Error().Msgf("Error while getting question type: %v", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -66,14 +67,14 @@ func CreateFeedback(c *gin.Context) {
 			{
 				var options models.Options
 				if len(questionInput.Options) < 2 {
-					log.Println("ERROR: atleast 2 options required in mcq")
+					logger.Logs.Error().Msg("atleast 2 options required in mcq")
 					c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 2 options required in mcq"})
 					return
 				}
 				options.QueId = question.ID
 				options.Options, err = json.Marshal(questionInput.Options)
 				if err != nil {
-					log.Println("error while marshaling options to []byte")
+					logger.Logs.Error().Msgf("Error while marshaling options to []byte: %v", err)
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "error while marshaling options to []byte"})
 					return
 				}
@@ -90,6 +91,7 @@ func CreateFeedback(c *gin.Context) {
 				}
 				res := repository.Db.Create(rRange)
 				if res.Error != nil {
+					logger.Logs.Error().Msgf("Error while saving Ratings: %v", res.Error)
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save Ratings"})
 					return
 				}
@@ -98,19 +100,20 @@ func CreateFeedback(c *gin.Context) {
 		}
 
 	}
+	logger.Logs.Info().Msg("Feedback created successfully")
 	c.JSON(http.StatusCreated, finalFeedback)
 }
 
 func GetFeedback(c *gin.Context) {
 	feedbackId := c.Param("feedbackId")
 	if ok, err := utils.IsValidFeedbackId(feedbackId); !ok {
-		log.Printf("ERROR:invalid feedbackId %+v", err)
+		logger.Logs.Error().Msgf("Error while validating feedback id: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	feedback, err := repository.GetQuestionRepository().FindQuestionsDetailed(feedbackId)
 	if err != nil || len(feedback) == 0 {
-		log.Printf("ERROR %+v, foundFeedback length:%+v", err, len(feedback))
+		logger.Logs.Error().Msgf("Error while fetching feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}

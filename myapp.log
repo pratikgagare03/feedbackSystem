@@ -1,0 +1,7 @@
+{"level":"info","time":"2024-08-01T18:18:01+05:30","message":"Creating connection string"}
+{"level":"info","time":"2024-08-01T18:18:01+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-01T18:18:01+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-01T18:18:01+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-01T18:18:01+05:30","message":"Setting up api routes"}
+{"level":"info","time":"2024-08-01T18:18:17+05:30","message":"Creating feedback"}
+{"level":"info","time":"2024-08-01T18:18:17+05:30","message":"Feedback created successfully"}

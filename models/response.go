@@ -6,23 +6,20 @@ import (
 
 type FeedbackResponse struct {
 	gorm.Model
-	UserID     uint
-	User       User `gorm:"foreignKey:UserID" json:"-"`
-	FeedbackID uint
-	Feedback   Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
-	QuestionID string
-	Answer     string
+	UserID          uint
+	User            User `gorm:"foreignKey:UserID" json:"-"`
+	FeedbackID      uint
+	Feedback        Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
+	QuestionContent string
+	QuestionType    QuestionType
+	Answer          string
 }
 type FeedbackResponseInput struct {
 	gorm.Model
-	UserID         uint
-	User           User `gorm:"foreignKey:UserID" json:"-"`
-	FeedbackID     uint
-	Feedback       Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
 	QuestionAnswer []QuestionAnswer
 }
 type QuestionAnswer struct {
 	gorm.Model
-	QuestionID string
-	Answer     string
+	QuestionID uint   `validate:"required"`
+	Answer     string `validate:"required"`
 }

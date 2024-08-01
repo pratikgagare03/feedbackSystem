@@ -10,7 +10,7 @@ var Db *gorm.DB
 
 func init() {
 	var err error
-	Db, err = database.Setup()
+	Db, err = database.Connect()
 	if err != nil {
 		panic(err)
 	}

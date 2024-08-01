@@ -10,5 +10,5 @@ type Feedback struct {
 	User   User `gorm:"foreignKey:UserID" json:"-"`
 }
 type FeedbackInput struct {
-	Questions []QuestionInput
+	Questions []QuestionDetailed
 }

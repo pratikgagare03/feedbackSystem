@@ -33,7 +33,6 @@ func CreateFeedback(c *gin.Context) {
 	var finalFeedback models.Feedback
 
 	finalFeedback.UserID = c.GetUint("uid")
-	log.Println("hello:", finalFeedback.UserID)
 
 	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
 	if err != nil {
@@ -58,29 +57,46 @@ func CreateFeedback(c *gin.Context) {
 		}
 
 		question.FeedbackID = finalFeedback.ID
+		question.QuestionContent = questionInput.QuestionContent
 		question.QuestionType = qtype
+		repository.GetQuestionRepository().InsertQuestion(&question)
 
 		switch qtype {
 		case models.MCQ:
 			{
+				var options models.Options
 				if len(questionInput.Options) < 2 {
 					log.Println("ERROR: atleast 2 options required in mcq")
 					c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 2 options required in mcq"})
 					return
 				}
-
-				question.QuestionContent, _ = json.Marshal(models.McqQuestionContent{
-					QuestionContent: questionInput.QuestionContent,
-					Options:         questionInput.Options,
-				})
+				options.QueId = question.ID
+				options.Options, err = json.Marshal(questionInput.Options)
+				if err != nil {
+					log.Println("error while marshaling options to []byte")
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "error while marshaling options to []byte"})
+					return
+				}
+				repository.GetOptionsRepository().InsertOptions(&options)
 			}
-		default:
+		case models.Ratings:
 			{
-				question.QuestionContent, _ = json.Marshal(questionInput.QuestionContent)
+				var rRange models.RatingsRange
+				rRange.QueId = question.ID
+				if questionInput.MaxRatingsRange < 0 {
+					rRange.MaxRatingsRange = 5
+				} else {
+					rRange.MaxRatingsRange = questionInput.MaxRatingsRange
+				}
+				res := repository.Db.Create(rRange)
+				if res.Error != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save Ratings"})
+					return
+				}
 			}
 
 		}
-		repository.GetQuestionRepository().InsertQuestion(&question)
+
 	}
 	c.JSON(http.StatusCreated, finalFeedback)
 }
@@ -92,10 +108,10 @@ func GetFeedback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	feedback, err := repository.GetQuestionRepository().GetQuestionsByFeedbackID(feedbackId)
+	feedback, err := repository.GetQuestionRepository().FindQuestionsDetailed(feedbackId)
 	if err != nil || len(feedback) == 0 {
-		log.Printf("ERROR %+v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		log.Printf("ERROR %+v, foundFeedback length:%+v", err, len(feedback))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 	c.JSON(http.StatusFound, feedback)

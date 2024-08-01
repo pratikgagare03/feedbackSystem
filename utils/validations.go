@@ -36,12 +36,10 @@ func ResponseExistForUser(feedbackID string, userID uint) bool {
 	return false
 }
 
-func QuestionExistInFeedback(questionID string, feedbackID string) bool {
-	res, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(questionID, feedbackID)
-	if len(res) != 0 && err != gorm.ErrRecordNotFound {
-		return true
-	}
-	return false
+func QuestionExistInFeedback(questionID uint, feedbackID string) bool {
+	_, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(questionID, feedbackID)
+
+	return err != gorm.ErrRecordNotFound 
 }
 
 func ResponseExistForFeedback(feedbackID string) bool {

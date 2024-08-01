@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
 	"github.com/pratikgagare03/feedback/utils"
+	"gorm.io/gorm"
 )
 
 func SaveFeedbackResponse(c *gin.Context) {
@@ -46,19 +48,71 @@ func SaveFeedbackResponse(c *gin.Context) {
 		var responseDb models.FeedbackResponse
 		responseDb.UserID = userId
 		responseDb.FeedbackID = uint(feedbackIdInt)
-		responseDb.QuestionID = qna.QuestionID
-		if questions, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(qna.QuestionID, feedbackID); len(questions) == 0 {
+		//working here get question match the options
+		if question, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(qna.QuestionID, feedbackID); err == gorm.ErrRecordNotFound {
 			log.Printf("ERROR:%+v Question with provided id not present in respective feedback.", err)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Question with provided id not present in respective feedback."})
 			return
 		} else {
+			responseDb.QuestionType = question.QuestionType
+			responseDb.QuestionContent = question.QuestionContent
+			switch question.QuestionType {
+			case models.MCQ:
+				{
+					options, err := repository.GetOptionsRepository().FindOptionsByQueId(qna.QuestionID)
+					if err != nil {
+						c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+						return
+					}
+					var optionsArr []string
+					err = json.Unmarshal(options.Options, &optionsArr)
+					if err != nil {
+						c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+						return
+					}
+					optionFound := false
+					for _, option := range optionsArr {
+						if option == qna.Answer {
+							optionFound = true
+							break
+						}
+					}
+					if !optionFound {
+						c.JSON(http.StatusBadRequest, gin.H{"error": "please select a valid option"})
+						return
+					}
+				}
+			case models.Ratings:
+				{
+					answerInt, err := strconv.Atoi(qna.Answer)
+					if err != nil {
+						c.JSON(http.StatusBadRequest, gin.H{"error": "answer must be a string(number) for ratings"})
+						return
+					}
+					var rRange models.RatingsRange
+					res := repository.Db.Find(&rRange, "que_id =?", question.ID)
+					if res.Error != nil {
+						c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get ratings from db"})
+						return
+					}
 
+					if answerInt > rRange.MaxRatingsRange {
+						log.Printf("answer rating set to max as recieved rating vas higher that maxRating")
+						qna.Answer = strconv.Itoa(rRange.MaxRatingsRange)
+					}
+				}
+			}
+			responseDb.Answer = qna.Answer
+			arrResponseDb = append(arrResponseDb, responseDb)
 		}
-		responseDb.Answer = qna.Answer
-		arrResponseDb = append(arrResponseDb, responseDb)
 	}
 
-	repository.GetResponseRepository().InsertResponse(arrResponseDb)
+	err = repository.GetResponseRepository().InsertResponse(arrResponseDb)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving response."})
+		return
+	}
+
 	c.JSON(http.StatusCreated, "Your Response has been submitted")
 }
 

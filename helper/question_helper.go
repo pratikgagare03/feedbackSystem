@@ -20,6 +20,3 @@ func GetQuestionType(s string) (models.QuestionType, error) {
 	}
 }
 
-// func GetQueInputToQueModel(queInput []models.QuestionInput) ([]models.Question, error){
-
-// }

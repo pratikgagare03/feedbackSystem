@@ -14,23 +14,24 @@ type Question struct {
 	gorm.Model
 	FeedbackID      uint
 	Feedback        Feedback `gorm:"foreignKey:FeedbackID" json:"-"`
-	QuestionContent []byte
-	QuestionType    QuestionType
-}
-type QuestionInput struct {
 	QuestionContent string
-	QuestionType    string
-	Options         []string
+	QuestionType    QuestionType `validate:"required,eq=mcq|eq=textinput|eq=ratings"`
 }
-
-type McqQuestionContent struct {
-	QuestionContent string
-	Options         []string
-}
-
 type QuestionDetailed struct {
-	QuestionId      uint
 	QuestionContent string
-	QuestionType    QuestionType
+	QuestionType    string `validate:"required,eq=mcq|eq=textinput|eq=ratings"`
 	Options         []string
+	MaxRatingsRange int
 }
+type Options struct {
+	QueId    uint
+	Question Question `gorm:"foreignKey:QueId" json:"-"`
+	Options  []byte   `validate:"required"`
+}
+
+type RatingsRange struct {
+	QueId           uint
+	Question        Question `gorm:"foreignKey:QueId" json:"-"`
+	MaxRatingsRange int      `validate:"required"`
+}
+

@@ -10,11 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func Setup() (*gorm.DB, error) {
+func Connect() (*gorm.DB, error) {
 	godotenv.Load(".env")
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", os.Getenv("HOST"), os.Getenv("DBPORT"), os.Getenv("DBUSER"), os.Getenv("DBPASSWORD"), os.Getenv("DBNAME"))
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
-	db.AutoMigrate(models.User{}, models.Feedback{}, models.Question{}, models.FeedbackResponse{})
+	db.AutoMigrate(models.User{}, models.Feedback{}, models.Question{}, models.FeedbackResponse{}, models.Options{}, models.RatingsRange{})
 	if err != nil {
 		return nil, err
 	}

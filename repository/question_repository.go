@@ -10,7 +10,7 @@ import (
 type QuestionRepository interface {
 	InsertQuestion(question *models.Question) error
 	FindQuestionByID(questionID string) (*models.Question, error)
-	FindQuestionsDetailed(questionId string) ([]models.QuestionDetailed, error)
+	FindQuestionsDetailed(feedbackId string) ([]models.QuestionDetailed, error)
 	FindQuestionByQuestionIdFeedbackId(questionID uint, feedbackID string) (models.Question, error)
 	GetQuestionsByFeedbackID(feedbackId string) ([]models.Question, error)
 	UpdateQuestion(question *models.Question) error
@@ -23,8 +23,9 @@ type postgresQuestionRepository struct {
 }
 
 // FindQuestionsDetailed implements QuestionRepository.
-func (p *postgresQuestionRepository) FindQuestionsDetailed(questionId string) ([]models.QuestionDetailed, error) {
+func (p *postgresQuestionRepository) FindQuestionsDetailed(feedbackId string) ([]models.QuestionDetailed, error) {
 	type questionDetailedDbByte struct {
+		ID              uint   `json:"question_id"`
 		QuestionContent string `json:"question_content"`
 		QuestionType    string `json:"question_type"`
 		Options         []byte `json:"options"`
@@ -32,11 +33,12 @@ func (p *postgresQuestionRepository) FindQuestionsDetailed(questionId string) ([
 	}
 	var questionsDetailedByte []questionDetailedDbByte
 
-	res := Db.Raw("SELECT q.question_content,q.question_type, o.options, rr.max_ratings_range FROM questions q LEFT JOIN options o ON q.id = o.que_id LEFT JOIN ratings_ranges rr ON q.id = rr.que_id WHERE q.feedback_id = ? OR q.id = o.que_id OR q.id = rr.que_id;", questionId).Scan(&questionsDetailedByte)
+	res := Db.Raw("SELECT q.id,q.question_content,q.question_type, o.options, rr.max_ratings_range FROM questions q LEFT JOIN options o ON q.id = o.que_id LEFT JOIN ratings_ranges rr ON q.id = rr.que_id WHERE (q.feedback_id = ?) AND (q.id = o.que_id OR q.id = rr.que_id OR q.question_type = ?);", feedbackId, models.TextInput).Scan(&questionsDetailedByte)
 
 	var questionsDetailedString []models.QuestionDetailed
 	for _, questionDetailedByte := range questionsDetailedByte {
 		var q models.QuestionDetailed
+		q.QuestionId = questionDetailedByte.ID
 		q.QuestionContent = questionDetailedByte.QuestionContent
 		q.MaxRatingsRange = questionDetailedByte.MaxRatingsRange
 		q.QuestionType = questionDetailedByte.QuestionType

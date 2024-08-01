@@ -105,6 +105,7 @@ func CreateFeedback(c *gin.Context) {
 }
 
 func GetFeedback(c *gin.Context) {
+	logger.Logs.Info().Msg("Fetching feedback")
 	feedbackId := c.Param("feedbackId")
 	if ok, err := utils.IsValidFeedbackId(feedbackId); !ok {
 		logger.Logs.Error().Msgf("Error while validating feedback id: %v", err)
@@ -117,5 +118,6 @@ func GetFeedback(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+	logger.Logs.Info().Msg("Feedback fetched successfully")
 	c.JSON(http.StatusFound, feedback)
 }

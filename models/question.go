@@ -18,6 +18,7 @@ type Question struct {
 	QuestionType    QuestionType `validate:"required,eq=mcq|eq=textinput|eq=ratings"`
 }
 type QuestionDetailed struct {
+	QuestionId      uint
 	QuestionContent string
 	QuestionType    string `validate:"required,eq=mcq|eq=textinput|eq=ratings"`
 	Options         []string
@@ -34,4 +35,3 @@ type RatingsRange struct {
 	Question        Question `gorm:"foreignKey:QueId" json:"-"`
 	MaxRatingsRange int      `validate:"required"`
 }
-

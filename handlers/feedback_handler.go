@@ -52,7 +52,7 @@ func CreateFeedback(c *gin.Context) {
 	for _, questionInput := range newFeedback.Questions {
 		// check for empty question
 		if len(questionInput.QuestionContent) == 0 {
-			logger.Logs.Error().Msg("Question cannot be empty")
+			logger.Logs.Error().Msgf("Question cannot be empty, QuestionContent:%+v", questionInput.QuestionContent)
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Question cannot be empty"})
 			return
 		}
@@ -125,9 +125,9 @@ func CreateFeedback(c *gin.Context) {
 func GetFeedback(c *gin.Context) {
 	logger.Logs.Info().Msg("Fetching feedback")
 	feedbackId := c.Param("feedbackId")
-	if ok, err := utils.IsValidFeedbackId(feedbackId); ok{
+	if ok, err := utils.IsValidFeedbackId(feedbackId); ok {
 		logger.Logs.Info().Msg("FeedbackId is valid")
-	}else if err != nil {
+	} else if err != nil {
 		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -24,7 +24,7 @@ type Question struct {
 type QuestionDetailed struct {
 	QuestionId      uint     `json:"question_id"`
 	QuestionContent string   `json:"question_content"`
-	QuestionType    string   `validate:"required,eq=mcq|eq=textinput|eq=ratings"`
+	QuestionType    string   `json:"question_type" validate:"required,eq=mcq|eq=textinput|eq=ratings"`
 	Options         []string `json:"options"  omitempty:"true"`
 	MaxRatingsRange int      `json:"max_ratings_range" omitempty:"true"`
 }

@@ -1,18 +1,9 @@
-{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Creating connection string"}
-{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Connecting to the database"}
-{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Running database migrations"}
-{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Database connection established successfully"}
-{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Setting up api routes"}
-{"level":"error","time":"2024-08-02T12:33:09+05:30","message":"Unauthorized to access this resource"}
-{"level":"error","time":"2024-08-02T12:33:01+05:30","message":"Unauthorized to access this resource"}
--08-02T12:25:22+05:30","message":"logging in"}
-{"level":"info","time":"2024-08-02T12:25:22+05:30","message":"verifying password"}
-{"level":"info","time":"2024-08-02T12:27:09+05:30","message":"logging in"}
-{"level":"info","time":"2024-08-02T12:27:09+05:30","message":"verifying password"}
-"}
-{"level":"info","time":"2024-08-02T11:23:45+05:30","message":"Creating feedback"}
-{"level":"info","time":"2024-08-02T11:23:45+05:30","message":"Feedback created successfully"}
-{"level":"info","time":"2024-08-02T11:23:53+05:30","message":"Fetching feedback"}
-{"level":"info","time":"2024-08-02T11:23:53+05:30","message":"Feedback fetched successfully"}
-
-{"level":"error","time":"2024-08-01T18:37:04+05:30","message":"ERROR: invalid character ',' looking for beginning of value"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Creating connection string"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Starting the server"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Setting up api routes"}
+{"level":"info","time":"2024-08-02T18:04:05+05:30","message":"Starting the server on port :8000"}
+{"level":"info","time":"2024-08-02T18:04:08+05:30","message":"Saving feedback response"}
+{"level":"error","time":"2024-08-02T18:04:08+05:30","message":"ERROR: failed to save response empty slice found"}

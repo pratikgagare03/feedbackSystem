@@ -7,11 +7,9 @@ import (
 
 type OptionsRepository interface {
 	InsertOptions(option *models.Options) error
-	FindOptionsByID(optionID string) (*models.Options, error)
 	FindOptionsByQueId(questionID uint) (*models.Options, error)
 	UpdateOptions(option *models.Options) error
 	DeleteOptions(optionID string) error
-	GetOptionss(tagcontains string) ([]models.Options, error)
 }
 
 type postgresOptionsRepository struct {
@@ -25,16 +23,6 @@ func (p *postgresOptionsRepository) FindOptionsByQueId(questionID uint) (*models
 
 // DeleteOptions implements OptionsRepository.
 func (p *postgresOptionsRepository) DeleteOptions(optionID string) error {
-	panic("unimplemented")
-}
-
-// FindOptionsByID implements OptionsRepository.
-func (p *postgresOptionsRepository) FindOptionsByID(optionID string) (*models.Options, error) {
-	panic("unimplemented")
-}
-
-// GetOptionss implements OptionsRepository.
-func (p *postgresOptionsRepository) GetOptionss(tagcontains string) ([]models.Options, error) {
 	panic("unimplemented")
 }
 

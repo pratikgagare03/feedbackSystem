@@ -2,22 +2,13 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-func init() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("error loading .env file")
-	}
-}
 
 // Connect function is used to connect to the database
 func Connect() (*gorm.DB, error) {

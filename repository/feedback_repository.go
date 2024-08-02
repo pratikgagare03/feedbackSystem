@@ -10,7 +10,6 @@ type FeedbackRepository interface {
 	FindFeedbackByID(feedbackID string) (models.Feedback, error)
 	UpdateFeedback(feedback *models.Feedback) error
 	DeleteFeedback(feedbackID string) error
-	GetFeedbacks(tagcontains string) ([]models.Feedback, error)
 }
 
 type postgresFeedbackRepository struct {
@@ -27,11 +26,6 @@ func (p *postgresFeedbackRepository) FindFeedbackByID(feedbackID string) (models
 	var fd models.Feedback
 	res := Db.First(&fd, feedbackID)
 	return fd, res.Error
-}
-
-// GetFeedbacks implements FeedbackRepository.
-func (p *postgresFeedbackRepository) GetFeedbacks(tagcontains string) ([]models.Feedback, error) {
-	panic("unimplemented")
 }
 
 // InsertFeedback implements FeedbackRepository.

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,11 +18,12 @@ import (
 )
 
 func SaveFeedbackResponse(c *gin.Context) {
+	logger.Logs.Info().Msg("Saving feedback response")
 	feedbackID := c.Param("feedbackId")
 	userId := c.GetUint("uid")
-	if ok, err := utils.IsValidFeedbackId(feedbackID);ok{
+	if ok, err := utils.IsValidFeedbackId(feedbackID); ok {
 		logger.Logs.Info().Msg("FeedbackId is valid")
-	}else if err != nil {
+	} else if err != nil {
 		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -53,14 +54,14 @@ func SaveFeedbackResponse(c *gin.Context) {
 	feedbackIdInt, _ := strconv.Atoi(feedbackID)
 
 	var arrResponseDb []models.FeedbackResponse
-
+	//iterate over the questions and save the response
 	for _, qna := range responseInput.QuestionAnswer {
 		var responseDb models.FeedbackResponse
 		responseDb.UserID = userId
 		responseDb.FeedbackID = uint(feedbackIdInt)
-		//working here get question match the options
+
 		if question, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(qna.QuestionID, feedbackID); err == gorm.ErrRecordNotFound {
-			log.Printf("ERROR:%+v Question with provided id not present in respective feedback.", err)
+			logger.Logs.Error().Msg("Question with provided id not present in respective feedback.")
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Question with provided id not present in respective feedback."})
 			return
 		} else {
@@ -71,12 +72,14 @@ func SaveFeedbackResponse(c *gin.Context) {
 				{
 					options, err := repository.GetOptionsRepository().FindOptionsByQueId(qna.QuestionID)
 					if err != nil {
+						logger.Logs.Error().Msg("ERROR: failed to get options from db")
 						c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 						return
 					}
 					var optionsArr []string
 					err = json.Unmarshal(options.Options, &optionsArr)
 					if err != nil {
+						logger.Logs.Error().Msg("ERROR: failed to unmarshal options")
 						c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 						return
 					}
@@ -91,6 +94,7 @@ func SaveFeedbackResponse(c *gin.Context) {
 							}
 						}
 						if !optionFound {
+							logger.Logs.Error().Msg("ERROR: invalid option selected")
 							c.JSON(http.StatusBadRequest, gin.H{"error": "please select a valid option"})
 							return
 						}
@@ -100,42 +104,61 @@ func SaveFeedbackResponse(c *gin.Context) {
 				{
 					answerInt, err := strconv.Atoi(qna.Answer)
 					if err != nil {
+						logger.Logs.Error().Msg("ERROR: answer must be a string(number) for ratings")
 						c.JSON(http.StatusBadRequest, gin.H{"error": "answer must be a string(number) for ratings"})
 						return
 					}
 					var rRange models.RatingsRange
 					res := repository.Db.Find(&rRange, "que_id =?", question.ID)
 					if res.Error != nil {
+						logger.Logs.Error().Msg("ERROR: failed to get ratings from db")
 						c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get ratings from db"})
 						return
 					}
 
 					if answerInt > rRange.MaxRatingsRange {
-						log.Printf("answer rating set to max as recieved rating vas higher that maxRating")
+						logger.Logs.Error().Msg("ERROR: Rating out of range")
+						logger.Logs.Info().Msgf("Answer ratimg out of range %d set ratings to max rane %d", answerInt, rRange.MaxRatingsRange)
+						//set the answer to max range
 						qna.Answer = strconv.Itoa(rRange.MaxRatingsRange)
 					}
 				}
 			}
 			responseDb.Answer = qna.Answer
+			fmt.Printf("ResponseDb %+v", responseDb)
 			arrResponseDb = append(arrResponseDb, responseDb)
 		}
 	}
-
+	//save the response in db
+	fmt.Printf("arrResponseDb %+v", arrResponseDb)
 	err = repository.GetResponseRepository().InsertResponse(arrResponseDb)
 	if err != nil {
+		logger.Logs.Error().Msg("ERROR: failed to save response " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error saving response."})
 		return
 	}
-
+	logger.Logs.Info().Msg("Response saved successfully")
 	c.JSON(http.StatusCreated, "Your Response has been submitted")
 }
 
 func GetAllResponsesForUser(c *gin.Context) {
 	userId := c.Param("userID")
 	if err := helper.MatchUserTypeToUid(c, userId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Logs.Error().Msgf("error while matching user type to uid: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+	// responses, err := repository.GetResponseRepository().GetAllResponsesForUser(userId)
+	// if err != nil {
+	// 	if err == gorm.ErrRecordNotFound {
+	// 		logger.Logs.Error().Msg("no responses found for user")
+	// 		c.JSON(http.StatusNotFound, gin.H{"error": "no responses found for user"})
+	// 		return
+	// 	}
+	// 	logger.Logs.Error().Msgf("error while getting responses for user: %v", err)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	//get all responses for user
 	//working
 }

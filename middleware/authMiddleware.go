@@ -5,11 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/helper"
+	"github.com/pratikgagare03/feedback/logger"
 )
 
 func Authenticate(c *gin.Context) {
 	clientToken, err := c.Cookie("token")
 	if err != nil {
+		logger.Logs.Error().Msgf("error while getting cookie: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No cookie found, please login"})
 		c.Abort()
 		return
@@ -17,6 +19,7 @@ func Authenticate(c *gin.Context) {
 
 	claims, msg := helper.ValidateToken(clientToken)
 	if msg != "" {
+		logger.Logs.Error().Msgf("error while validating token: %v", msg)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		c.Abort()
 		return

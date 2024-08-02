@@ -4,6 +4,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 )
 
@@ -23,11 +24,14 @@ func initLogger() {
 	if err != nil {
 		panic(err)
 	}
-
 	Logs = zerolog.New(file).With().Timestamp().Logger()
 }
 
 // GetLogger returns the singleton instance of the logger
 func init() {
 	once.Do(initLogger)
+	err := godotenv.Load(".env")
+	if err != nil {
+		Logs.Fatal().Msg("Error loading .env file")
+	}
 }

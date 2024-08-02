@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -34,7 +33,6 @@ func HashPassword(password string) string {
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
 		logger.Logs.Error().Msgf("error while hashing password: %v", err)
-		log.Panic(err)
 	}
 	return string(hashedPass)
 }
@@ -135,41 +133,51 @@ func Login(c *gin.Context) {
 
 }
 func GetUsers(c *gin.Context) {
+	logger.Logs.Info().Msg("getting users")
 	if err := helper.CheckUserType(c, "ADMIN"); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Logs.Error().Msgf("error while checking user type: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
 	recordsPerPage, err := strconv.Atoi(c.Query("recordsPerPage"))
 	if err != nil || recordsPerPage < 1 {
+		logger.Logs.Error().Msg("error while getting records per page")
+		logger.Logs.Info().Msg("setting records per page to 10")
 		recordsPerPage = 10
 	}
 	page, err := strconv.Atoi(c.Query("page"))
 	if err != nil || page < 1 {
+		logger.Logs.Error().Msg("error while getting page")
+		logger.Logs.Info().Msg("setting page to 1")
 		page = 1
 	}
 
 	startIndex, err := strconv.Atoi(c.Query("startIndex"))
 	if err != nil || startIndex < 1 {
+		logger.Logs.Error().Msg("error while getting start index")
 		startIndex = (page - 1) * recordsPerPage
 	}
 	users, err := repository.GetUserRepository().GetAllUsersByOffsetLimit(startIndex, recordsPerPage)
 	if err != nil {
+		logger.Logs.Error().Msgf("error while listing user items: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
 		return
 	}
+	logger.Logs.Info().Msg("users listed successfully")
 	c.JSON(http.StatusOK, users)
 }
 
 func GetUser(c *gin.Context) {
 	userId := c.Param("user_id")
-	log.Printf("userId: %v", userId)
 	if err := helper.MatchUserTypeToUid(c, userId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		logger.Logs.Error().Msgf("error while matching user type to uid: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 	userIdInt, err := strconv.Atoi(userId)
 	if err != nil {
+		logger.Logs.Error().Msgf("error while converting user id to int: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	user, err := repository.GetUserRepository().FindUserByID(uint(userIdInt))
@@ -182,6 +190,6 @@ func GetUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
+	logger.Logs.Info().Msg("user found successfully")
 	c.JSON(http.StatusOK, user)
 }

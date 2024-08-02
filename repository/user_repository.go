@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/pratikgagare03/feedback/database"
+	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
 )
@@ -12,7 +13,7 @@ func init() {
 	var err error
 	Db, err = database.Connect()
 	if err != nil {
-		panic(err)
+		logger.Logs.Fatal().Msgf("Error connecting to the database: %v", err)
 	}
 }
 
@@ -27,7 +28,6 @@ type UserRepository interface {
 type postgresUserRepository struct {
 	postgresDb *gorm.DB
 }
-
 
 // FindUserByEmail implements UserRepository.
 func (p *postgresUserRepository) FindUserByEmail(email string) (*models.User, error) {

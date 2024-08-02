@@ -19,6 +19,11 @@ type postgresResponseRepository struct {
 	postgresDb *gorm.DB
 }
 
+// GetResponses implements ResponseRepository.
+func (p *postgresResponseRepository) GetResponses(tagcontains string) ([]models.FeedbackResponse, error) {
+	panic("unimplemented")
+}
+
 // FindResponseByFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
@@ -29,7 +34,7 @@ func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string)
 // FindResponseByUserIdFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error) {
 	var matchingResponses models.FeedbackResponse
-	res := Db.Where("feedback_id = ? AND user_id = ?", feedbackID, userID).Find(&matchingResponses)
+	res := Db.Where("feedback_id = ?", feedbackID).Find(&matchingResponses)
 	return matchingResponses, res.Error
 }
 
@@ -46,7 +51,7 @@ func (p *postgresResponseRepository) FindResponseByID(responseID string) (models
 }
 
 // GetResponses implements ResponseRepository.
-func (p *postgresResponseRepository) GetResponses(tagcontains string) ([]models.FeedbackResponse, error) {
+func (p *postgresResponseRepository) GetAllResponsesForUser(userId string) ([]models.FeedbackResponse, error) {
 	panic("unimplemented")
 }
 

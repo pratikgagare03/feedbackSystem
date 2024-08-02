@@ -12,20 +12,26 @@ import (
 	"github.com/pratikgagare03/feedback/utils"
 )
 
+// CreateFeedback creates a new feedback
 func CreateFeedback(c *gin.Context) {
 	logger.Logs.Info().Msg("Creating feedback")
 	var newFeedback models.FeedbackInput
+	// Bind the json to the struct
 	if err := c.ShouldBindJSON(&newFeedback); err != nil {
 		logger.Logs.Error().Msgf("Error while binding json: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Validate the input
 	err := validate.Struct(newFeedback)
 	if err != nil {
 		logger.Logs.Error().Msgf("Error while validating feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Check if the questions are empty
 	if len(newFeedback.Questions) == 0 {
 		logger.Logs.Error().Msg("atleast 1 questions required")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 1 questions required"})
@@ -33,16 +39,18 @@ func CreateFeedback(c *gin.Context) {
 	}
 	var finalFeedback models.Feedback
 
+	// Copy the values from the input to the final feedback
 	finalFeedback.UserID = c.GetUint("uid")
-
+	// Insert the feedback
 	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
 	if err != nil {
 		logger.Logs.Error().Msgf("Error while inserting feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	// Iterate over the questions and inset them after validating
 	for _, questionInput := range newFeedback.Questions {
+		// check for empty question
 		if len(questionInput.QuestionContent) == 0 {
 			logger.Logs.Error().Msg("Question cannot be empty")
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Question cannot be empty"})
@@ -56,39 +64,48 @@ func CreateFeedback(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-
+		// Copy the values from the input to the question
 		question.FeedbackID = finalFeedback.ID
 		question.QuestionContent = questionInput.QuestionContent
 		question.QuestionType = qtype
+		// Insert the question
 		repository.GetQuestionRepository().InsertQuestion(&question)
 
+		// Insert the options or ratings based on the question type
 		switch qtype {
-		case models.MCQ:
+		case models.MCQ, models.SingleChoice:
 			{
 				var options models.Options
+				// check for empty options
 				if len(questionInput.Options) < 2 {
 					logger.Logs.Error().Msg("atleast 2 options required in mcq")
 					c.JSON(http.StatusBadRequest, gin.H{"error": "atleast 2 options required in mcq"})
 					return
 				}
 				options.QueId = question.ID
+				// Marshal the options to []byte
 				options.Options, err = json.Marshal(questionInput.Options)
 				if err != nil {
 					logger.Logs.Error().Msgf("Error while marshaling options to []byte: %v", err)
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "error while marshaling options to []byte"})
 					return
 				}
+				// Insert the options
 				repository.GetOptionsRepository().InsertOptions(&options)
 			}
 		case models.Ratings:
 			{
 				var rRange models.RatingsRange
 				rRange.QueId = question.ID
+				// check for negative ratings range
 				if questionInput.MaxRatingsRange < 0 {
+					// if max ratings range is negative, set it to 5
 					rRange.MaxRatingsRange = 5
 				} else {
+					// else set it to the input value
 					rRange.MaxRatingsRange = questionInput.MaxRatingsRange
 				}
+				// Insert the ratings range
 				res := repository.Db.Create(rRange)
 				if res.Error != nil {
 					logger.Logs.Error().Msgf("Error while saving Ratings: %v", res.Error)
@@ -100,6 +117,7 @@ func CreateFeedback(c *gin.Context) {
 		}
 
 	}
+
 	logger.Logs.Info().Msg("Feedback created successfully")
 	c.JSON(http.StatusCreated, finalFeedback)
 }
@@ -107,8 +125,10 @@ func CreateFeedback(c *gin.Context) {
 func GetFeedback(c *gin.Context) {
 	logger.Logs.Info().Msg("Fetching feedback")
 	feedbackId := c.Param("feedbackId")
-	if ok, err := utils.IsValidFeedbackId(feedbackId); !ok {
-		logger.Logs.Error().Msgf("Error while validating feedback id: %v", err)
+	if ok, err := utils.IsValidFeedbackId(feedbackId); ok{
+		logger.Logs.Info().Msg("FeedbackId is valid")
+	}else if err != nil {
+		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

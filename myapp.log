@@ -1,16 +1,18 @@
-{"level":"info","time":"2024-08-01T18:49:25+05:30","message":"Creating connection string"}
-{"level":"info","time":"2024-08-01T18:49:25+05:30","message":"Connecting to the database"}
-{"level":"info","time":"2024-08-01T18:49:25+05:30","message":"Running database migrations"}
-{"level":"info","time":"2024-08-01T18:49:25+05:30","message":"Database connection established successfully"}
-{"level":"info","time":"2024-08-01T18:49:25+05:30","message":"Setting up api routes"}
-{"level":"info","time":"2024-08-01T18:49:28+05:30","message":"Fetching feedback"}
-{"level":"info","time":"2024-08-01T18:49:28+05:30","message":"Feedback fetched successfully"}
-ERROR: column \"textinput\" does not exist (SQLSTATE 42703)"}
-QLSTATE 42804)"}
-me":"2024-08-01T18:33:06+05:30","message":"verifying password"}
-{"level":"info","time":"2024-08-01T18:33:54+05:30","message":"Creating feedback"}
-{"level":"info","time":"2024-08-01T18:33:54+05:30","message":"Feedback created successfully"}
-{"level":"info","time":"2024-08-01T18:34:05+05:30","message":"Fetching feedback"}
-{"level":"info","time":"2024-08-01T18:34:05+05:30","message":"Feedback fetched successfully"}
-{"level":"error","time":"2024-08-01T18:36:37+05:30","message":"ERROR: json: cannot unmarshal string into Go struct field QuestionAnswer.QuestionAnswer.QuestionID of type uint"}
+{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Creating connection string"}
+{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-02T12:36:51+05:30","message":"Setting up api routes"}
+{"level":"error","time":"2024-08-02T12:33:09+05:30","message":"Unauthorized to access this resource"}
+{"level":"error","time":"2024-08-02T12:33:01+05:30","message":"Unauthorized to access this resource"}
+-08-02T12:25:22+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-02T12:25:22+05:30","message":"verifying password"}
+{"level":"info","time":"2024-08-02T12:27:09+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-02T12:27:09+05:30","message":"verifying password"}
+"}
+{"level":"info","time":"2024-08-02T11:23:45+05:30","message":"Creating feedback"}
+{"level":"info","time":"2024-08-02T11:23:45+05:30","message":"Feedback created successfully"}
+{"level":"info","time":"2024-08-02T11:23:53+05:30","message":"Fetching feedback"}
+{"level":"info","time":"2024-08-02T11:23:53+05:30","message":"Feedback fetched successfully"}
+
 {"level":"error","time":"2024-08-01T18:37:04+05:30","message":"ERROR: invalid character ',' looking for beginning of value"}

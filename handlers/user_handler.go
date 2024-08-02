@@ -17,6 +17,7 @@ import (
 
 var validate = validator.New()
 
+// VerifyPasswordPassword verifies the password
 func VerifyPasswordPassword(userPassword, hashedPassword string) (bool, string) {
 	logger.Logs.Info().Msg("verifying password")
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(userPassword))
@@ -115,22 +116,21 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
 		return
 	}
-	token, claims, err := helper.GenerateAllTokens(foundUser.Email, foundUser.First_name, foundUser.Last_name, foundUser.User_type, foundUser.ID)
+	token, claims, err := helper.GenerateAccessToken(foundUser.Email, foundUser.First_name, foundUser.Last_name, foundUser.User_type, foundUser.ID)
 	if err != nil {
 		logger.Logs.Error().Msgf("error while generating token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token	"})
 		return
 	}
 	c.SetCookie("token", token, int(claims.ExpiresAt), "/", "", true, true)
-	// c.SetCookie("refresf_token", refreshToken, int(claims.ExpiresAt), "/", "", true, true)
 
-	helper.UpdateAllTokens(token, foundUser.ID)
 	foundUser, err = repository.GetUserRepository().FindUserByID(foundUser.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	logger.Logs.Info().Msg("logged in successfully")
 	c.JSON(http.StatusOK, foundUser)
 
 }
@@ -163,6 +163,7 @@ func GetUsers(c *gin.Context) {
 
 func GetUser(c *gin.Context) {
 	userId := c.Param("user_id")
+	log.Printf("userId: %v", userId)
 	if err := helper.MatchUserTypeToUid(c, userId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -173,6 +174,11 @@ func GetUser(c *gin.Context) {
 	}
 	user, err := repository.GetUserRepository().FindUserByID(uint(userIdInt))
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logger.Logs.Error().Msg("user not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

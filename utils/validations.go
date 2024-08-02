@@ -13,7 +13,10 @@ func IsValidUser(userId string) (bool, error) {
 		return false, err
 	}
 	_, err = repository.GetUserRepository().FindUserByID(uint(userIdInt))
-	if err != nil || err == gorm.ErrRecordNotFound {
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 
@@ -22,30 +25,45 @@ func IsValidUser(userId string) (bool, error) {
 
 func IsValidFeedbackId(feedbackId string) (bool, error) {
 	_, err := repository.GetFeedbackRepository().FindFeedbackByID(feedbackId)
-	if err != nil || err == gorm.ErrRecordNotFound {
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 	return true, nil
 }
 
-func ResponseExistForUser(feedbackID string, userID uint) bool {
-	responses, err := repository.GetResponseRepository().FindResponseByUserIdFeedbackId(userID, feedbackID)
-	if len(responses) != 0 && err != gorm.ErrRecordNotFound {
-		return true
+func ResponseExistForUser(feedbackID string, userID uint) (bool, error) {
+	_, err := repository.GetResponseRepository().FindResponseByUserIdFeedbackId(userID, feedbackID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
 	}
-	return false
+	return true, nil
 }
 
-func QuestionExistInFeedback(questionID uint, feedbackID string) bool {
+func QuestionExistInFeedback(questionID uint, feedbackID string) (bool, error) {
 	_, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(questionID, feedbackID)
 
-	return err != gorm.ErrRecordNotFound 
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
-func ResponseExistForFeedback(feedbackID string) bool {
-	responses, err := repository.GetResponseRepository().FindResponseByFeedbackId(feedbackID)
-	if len(responses) != 0 && err != gorm.ErrRecordNotFound {
-		return true
+func ResponseExistForFeedback(feedbackID string) (bool, error) {
+	_, err := repository.GetResponseRepository().FindResponseByFeedbackId(feedbackID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
 	}
-	return false
+	return true, nil
 }

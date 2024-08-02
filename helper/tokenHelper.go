@@ -1,13 +1,11 @@
 package helper
 
 import (
-	"log"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/pratikgagare03/feedback/models"
-	"github.com/pratikgagare03/feedback/repository"
+	"github.com/pratikgagare03/feedback/logger"
 )
 
 type SignedDetails struct {
@@ -19,9 +17,12 @@ type SignedDetails struct {
 	jwt.StandardClaims
 }
 
+// SECRET_KEY is the key used to sign the JWT token.
 var SECRET_KEY = os.Getenv("SECRET_KEY")
 
-func GenerateAllTokens(email, firstName, lastName, userType string, userID uint) (signedToken string, claims *SignedDetails, error error) {
+// GenerateAccessToken generates a JWT token with the given email, first name, last name, user type, and user ID.
+func GenerateAccessToken(email, firstName, lastName, userType string, userID uint) (signedToken string, claims *SignedDetails, error error) {
+	// Create a new SignedDetails struct with the given email, first name, last name, user type, and user ID.
 	claims = &SignedDetails{
 		Email:      email,
 		First_name: firstName,
@@ -33,34 +34,17 @@ func GenerateAllTokens(email, firstName, lastName, userType string, userID uint)
 		},
 	}
 
-	// refreshClaims := &SignedDetails{
-	// 	StandardClaims: jwt.StandardClaims{
-	// 		ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(168)).Unix(),
-	// 	},
-	// }
-
+	// Create a new JWT token with the SigningMethodHS256 signing method and the claims.
 	signedToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(SECRET_KEY))
 	if err != nil {
-		log.Panic(err)
-		return
+		logger.Logs.Panic().Msg("error while signing token")
 	}
-	// signedRefreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(SECRET_KEY))
 
-	if err != nil {
-		log.Panic(err)
-		return
-	}
+	// Return the signed token, the claims, and any error that occurred.
 	return signedToken, claims, err
 }
-func UpdateAllTokens(token string, userId uint) {
-	var updatedUser models.User
-	updatedUser.ID = userId
-	repository.Db.Find(&updatedUser)
-	// updatedUser.Refresh_token = refreshToken
-	repository.Db.Save(updatedUser)
-	return
-}
 
+// validateToken validates the given signed token and returns the claims and a message.
 func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 	token, err := jwt.ParseWithClaims(
 		signedToken,
@@ -73,13 +57,13 @@ func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 		msg = err.Error()
 		return
 	}
-
+	// Check if the token is valid.
 	claims, ok := token.Claims.(*SignedDetails)
 	if !ok {
 		msg = "token invalid"
 		return
 	}
-
+	// Check if the token is expired.
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		msg = "token expired"
 		return

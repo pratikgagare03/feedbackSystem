@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pratikgagare03/feedback/helper"
 	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
@@ -17,14 +20,20 @@ import (
 func SaveFeedbackResponse(c *gin.Context) {
 	feedbackID := c.Param("feedbackId")
 	userId := c.GetUint("uid")
-	if ok, err := utils.IsValidFeedbackId(feedbackID); !ok {
+	if ok, err := utils.IsValidFeedbackId(feedbackID);ok{
+		logger.Logs.Info().Msg("FeedbackId is valid")
+	}else if err != nil {
 		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if ok := utils.ResponseExistForUser(feedbackID, userId); ok {
+	if exists, err := utils.ResponseExistForUser(feedbackID, userId); exists {
 		logger.Logs.Error().Msg("ERROR: A Response already exist.")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ERROR: A Response already exist."})
+		return
+	} else if err != nil {
+		logger.Logs.Error().Msg("ERROR: " + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -58,7 +67,7 @@ func SaveFeedbackResponse(c *gin.Context) {
 			responseDb.QuestionType = question.QuestionType
 			responseDb.QuestionContent = question.QuestionContent
 			switch question.QuestionType {
-			case models.MCQ:
+			case models.MCQ, models.SingleChoice:
 				{
 					options, err := repository.GetOptionsRepository().FindOptionsByQueId(qna.QuestionID)
 					if err != nil {
@@ -71,16 +80,20 @@ func SaveFeedbackResponse(c *gin.Context) {
 						c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 						return
 					}
-					optionFound := false
-					for _, option := range optionsArr {
-						if option == qna.Answer {
-							optionFound = true
-							break
+					answerArr := strings.Split(qna.Answer, os.Getenv("MCQ_DELIMITER"))
+
+					for _, answer := range answerArr {
+						optionFound := false
+						for _, option := range optionsArr {
+							if answer == option {
+								optionFound = true
+								break
+							}
 						}
-					}
-					if !optionFound {
-						c.JSON(http.StatusBadRequest, gin.H{"error": "please select a valid option"})
-						return
+						if !optionFound {
+							c.JSON(http.StatusBadRequest, gin.H{"error": "please select a valid option"})
+							return
+						}
 					}
 				}
 			case models.Ratings:
@@ -117,23 +130,12 @@ func SaveFeedbackResponse(c *gin.Context) {
 	c.JSON(http.StatusCreated, "Your Response has been submitted")
 }
 
-func GetAllResponses(c *gin.Context) {
+func GetAllResponsesForUser(c *gin.Context) {
 	userId := c.Param("userID")
-	if ok, err := utils.IsValidUser(userId); !ok {
-		log.Printf("ERROR:invalid userId %+v", err)
+	if err := helper.MatchUserTypeToUid(c, userId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	feedbackID := c.Param("feedbackId")
-	if ok, err := utils.IsValidFeedbackId(feedbackID); !ok {
-		log.Printf("ERROR:invalid feedbackId %+v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if ok := utils.ResponseExistForFeedback(feedbackID); !ok {
-		log.Print("ERROR: No responses present.")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ERROR: No responses present."})
-		return
-	}
+	//get all responses for user
 	//working
 }

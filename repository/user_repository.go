@@ -28,7 +28,6 @@ type postgresUserRepository struct {
 	postgresDb *gorm.DB
 }
 
-// FindUserByUuid implements UserRepository.
 
 // FindUserByEmail implements UserRepository.
 func (p *postgresUserRepository) FindUserByEmail(email string) (*models.User, error) {

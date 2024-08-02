@@ -7,7 +7,7 @@ import (
 type Feedback struct {
 	gorm.Model
 	UserID uint `gorm:"column:user_id" json:"user_id"`
-	User   User `gorm:"foreignKey:UserID" json:"-"`
+	User   User `gorm:"foreignKey:UserID" json:"-" omitEmpty:"true"`
 }
 type FeedbackInput struct {
 	Questions []QuestionDetailed

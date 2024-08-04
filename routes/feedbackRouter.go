@@ -11,5 +11,6 @@ func FeedbackRoutes(incomingRoutes *gin.RouterGroup) {
 	incomingRoutes.POST("/create", handlers.CreateFeedback)
 	// feedbackGroup.POST("/:{feedbackId}/addQuestion", handlers.AddQuestion)
 	incomingRoutes.GET("/:feedbackId", handlers.GetFeedback)
-	incomingRoutes.POST("/:feedbackId/respond", handlers.SaveFeedbackResponse)
+	incomingRoutes.POST("/respond/:feedbackId", handlers.SaveFeedbackResponse)
+	incomingRoutes.GET("/respond/:userID", handlers.GetAllResponsesForUser)
 }

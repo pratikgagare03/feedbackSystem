@@ -42,7 +42,7 @@ func ResponseExistForUser(feedbackID string, userID uint) (bool, error) {
 		}
 		return false, err
 	}
-	return false, nil
+	return true, nil
 }
 
 func QuestionExistInFeedback(questionID uint, feedbackID string) (bool, error) {

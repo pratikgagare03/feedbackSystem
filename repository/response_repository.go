@@ -10,6 +10,7 @@ type ResponseRepository interface {
 	FindResponseByID(responseID string) (models.FeedbackResponse, error)
 	FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error)
 	FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error)
+	GetAllResponsesForUser(userId string) ([]models.FeedbackResponse, error)
 	UpdateResponse(response *models.FeedbackResponse) error
 	DeleteResponse(responseID string) error
 	GetResponses(tagcontains string) ([]models.FeedbackResponse, error)
@@ -27,14 +28,14 @@ func (p *postgresResponseRepository) GetResponses(tagcontains string) ([]models.
 // FindResponseByFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
-	res := Db.Where("feedback_id = ?", feedbackID).Find(&matchingResponses)
+	res := Db.Find(&matchingResponses, "feedback_id=?", feedbackID)
 	return matchingResponses, res.Error
 }
 
 // FindResponseByUserIdFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error) {
 	var matchingResponses models.FeedbackResponse
-	res := Db.Where("feedback_id = ?", feedbackID).Find(&matchingResponses)
+	res := Db.First(&matchingResponses, "feedback_id=? AND user_id=?", feedbackID, userID)
 	return matchingResponses, res.Error
 }
 
@@ -52,7 +53,9 @@ func (p *postgresResponseRepository) FindResponseByID(responseID string) (models
 
 // GetResponses implements ResponseRepository.
 func (p *postgresResponseRepository) GetAllResponsesForUser(userId string) ([]models.FeedbackResponse, error) {
-	panic("unimplemented")
+	var feedbackResponse []models.FeedbackResponse
+	res := Db.Find(&feedbackResponse, "user_id=?", userId).Order("feedback_id")
+	return feedbackResponse, res.Error
 }
 
 // InsertResponse implements ResponseRepository.

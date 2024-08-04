@@ -74,14 +74,17 @@ func (p *postgresQuestionRepository) UpdateQuestion(question *models.Question) e
 // FindQuestionByQuestionIdFeedbackId implements QuestionRepository.
 func (p *postgresQuestionRepository) FindQuestionByQuestionIdFeedbackId(questionID uint, feedbackID string) (models.Question, error) {
 	var matchingQuestions models.Question
-	res := Db.Where("id = ? AND feedback_id = ?", questionID, feedbackID).Find(matchingQuestions)
+
+	res := Db.Where("id = ? AND feedback_id = ?", questionID, feedbackID).First(&matchingQuestions)
 	return matchingQuestions, res.Error
 }
 
 // GetQuestionsByFeedbackID implements QuestionRepository.
 func (p *postgresQuestionRepository) GetQuestionsByFeedbackID(feedbackID string) ([]models.Question, error) {
 	var questions []models.Question
-	res := Db.Where("feedback_id = ?", feedbackID).Find(&questions)
+	var questions1 models.Question
+
+	res := Db.Find(&questions1)
 	return questions, res.Error
 }
 

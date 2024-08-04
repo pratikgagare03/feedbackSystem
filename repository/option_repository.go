@@ -18,7 +18,9 @@ type postgresOptionsRepository struct {
 
 // FindOptionsByQueId implements OptionsRepository.
 func (p *postgresOptionsRepository) FindOptionsByQueId(questionID uint) (*models.Options, error) {
-	panic("unimplemented")
+	var options models.Options
+	res := Db.Where("que_id = ?", questionID).Find(&options)
+	return &options, res.Error
 }
 
 // DeleteOptions implements OptionsRepository.

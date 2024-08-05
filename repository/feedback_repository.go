@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
 )
@@ -8,23 +10,28 @@ import (
 type FeedbackRepository interface {
 	InsertFeedback(feedback *models.Feedback) error
 	FindFeedbackByID(feedbackID string) (models.Feedback, error)
-	UpdateFeedback(feedback *models.Feedback) error
-	DeleteFeedback(feedbackID string) error
+	UpdatePublishedStatus(feedbackID string, Published bool) error
 }
 
 type postgresFeedbackRepository struct {
 	postgresDb *gorm.DB
 }
 
-// DeleteFeedback implements FeedbackRepository.
-func (p *postgresFeedbackRepository) DeleteFeedback(feedbackID string) error {
-	panic("unimplemented")
+// UnpublishFeedback implements FeedbackRepository.
+func (p *postgresFeedbackRepository) UpdatePublishedStatus(feedbackID string, Published bool) error {
+	var feedback models.Feedback
+	res := Db.Find(&feedback, "id=?", feedbackID)
+	if res.Error == nil && feedback.Published == Published {
+		return errors.New("feedback already in the desired state")
+	}
+	res = Db.Model(&models.Feedback{}).Where("id=?", feedbackID).Update("published", Published)
+	return res.Error
 }
 
 // FindFeedbackByID implements FeedbackRepository.
 func (p *postgresFeedbackRepository) FindFeedbackByID(feedbackID string) (models.Feedback, error) {
 	var fd models.Feedback
-	res := Db.First(&fd, feedbackID)
+	res := Db.First(&fd, "id=?", feedbackID)
 	return fd, res.Error
 }
 
@@ -32,11 +39,6 @@ func (p *postgresFeedbackRepository) FindFeedbackByID(feedbackID string) (models
 func (p *postgresFeedbackRepository) InsertFeedback(feedback *models.Feedback) error {
 	res := Db.Create(&feedback)
 	return res.Error
-}
-
-// UpdateFeedback implements FeedbackRepository.
-func (p *postgresFeedbackRepository) UpdateFeedback(feedback *models.Feedback) error {
-	panic("unimplemented")
 }
 
 func newPostgresFeedbackRepository(db *gorm.DB) FeedbackRepository {

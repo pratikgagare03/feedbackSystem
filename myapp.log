@@ -1,37 +1,31 @@
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Creating connection string"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Connecting to the database"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Running database migrations"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Database connection established successfully"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Starting the server"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Setting up api routes"}
-{"level":"info","time":"2024-08-05T02:59:33+05:30","message":"Starting the server on port :8000"}
-{"level":"info","time":"2024-08-05T02:56:08+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:56:08+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T02:56:08+05:30","message":"ERROR: A Response already exist."}
-o","time":"2024-08-05T02:24:05+05:30","message":"FeedbackId is valid"}
-{"level":"info","time":"2024-08-05T02:24:05+05:30","message":"Feedback fetched successfully"}
-{"level":"info","time":"2024-08-05T02:24:40+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:24:40+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T02:24:40+05:30","message":"ERROR: A Response already exist."}
-{"level":"info","time":"2024-08-05T02:24:46+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:24:46+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T02:24:46+05:30","message":"ERROR: invalid option selected"}
-{"level":"info","time":"2024-08-05T02:25:27+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:25:27+05:30","message":"FeedbackId is valid"}
-{"level":"info","time":"2024-08-05T02:25:27+05:30","message":"Response saved successfully"}
-{"level":"info","time":"2024-08-05T02:25:29+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:25:29+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T02:25:29+05:30","message":"ERROR: A Response already exist."}
-}
-{"level":"info","time":"2024-08-05T02:21:43+05:30","message":"FeedbackId is valid"}
-{"level":"info","time":"2024-08-05T02:21:43+05:30","message":"Response saved successfully"}
-{"level":"info","time":"2024-08-05T02:21:45+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T02:21:45+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T02:21:45+05:30","message":"ERROR: A Response already exist."}
-{"level":"error","time":"2024-08-05T02:21:52+05:30","message":"Unauthorized to access this resource"}
-{"level":"error","time":"2024-08-05T02:21:52+05:30","message":"error while matching user type to uid: unauthorized to access this resource"}
-{"level":"info","time":"2024-08-05T02:22:11+05:30","message":"logging in"}
-{"level":"info","time":"2024-08-05T02:22:11+05:30","message":"verifying password"}
-{"level":"info","time":"2024-08-05T02:22:11+05:30","message":"logged in successfully"}
-{"level":"info","time":"2024-08-05T02:22:41+05:30","message":"Creating feedback"}
-{"level":"error","time":"2024-08-05T02:22:41+05:30","message":"Error while validating feedback: Key: 'FeedbackInput.Questions[2].QuestionType' Error:Field validation for 'QuestionType' failed on the 'eq=mcq|eq=textinput|eq=ratings' tag"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Creating connection string"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Starting the server"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Setting up api routes"}
+{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Starting the server on port :8000"}
+{"level":"info","time":"2024-08-05T18:24:42+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:42+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:42+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-05T18:24:43+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:43+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:43+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-05T18:24:49+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-05T18:24:49+05:30","message":"Feedback unpublished successfully"}
+{"level":"info","time":"2024-08-05T18:24:54+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:54+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:54+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-05T18:24:55+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:55+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:55+05:30","message":"ERROR: A Response already exist."}
+level":"info","time":"2024-08-05T18:23:51+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:23:51+05:30","message":"Feedback is not published"}
+{"level":"info","time":"2024-08-05T18:24:03+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-05T18:24:03+05:30","message":"Feedback published successfully"}
+{"level":"info","time":"2024-08-05T18:24:07+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:07+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:07+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-05T18:24:09+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-05T18:24:09+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-05T18:24:09+05:30","message":"ERROR: A Response already exist."}

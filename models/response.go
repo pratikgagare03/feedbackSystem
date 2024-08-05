@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 ) // FeedbackResponse table in database.
 type FeedbackResponse struct {
@@ -18,23 +20,36 @@ type FeedbackResponse struct {
 type FeedbackResponseInput struct {
 	QuestionAnswer []QuestionAnswer `json:"question_answer" validate:"required"`
 }
-
-// QuestionAnswer is a struct that represents the answer for a question.
 type QuestionAnswer struct {
 	QuestionID uint   `json:"question_id" validate:"required"`
 	Answer     string `json:"answer" validate:"required"`
 }
-
-type FeedbackResponseOutput struct {
-	gorm.Model
-	UserID     uint                         `json:"user_id"`
-	Responses  []QuestionAnswerWithFeedback `json:"Responses"`
-}
-type QuestionAnswerWithFeedback struct {
-	FeedbackId uint `json:"feedback_id"`
-	QnA        []QuestionAnswerWithQuestion
-}
 type QuestionAnswerWithQuestion struct {
 	Question string `json:"question"`
 	Answer   string `json:"answer" validate:"required"`
+}
+
+// QuestionAnswer is a struct that represents the answer for a question.
+
+type FeedbackResponseOutputForUser struct {
+	UserID    uint                    `json:"user_id"`
+	Responses []QuestionAnswerForUser `json:"Responses"`
+}
+type QuestionAnswerForUser struct {
+	FeedbackID uint                         `json:"feedback_id"`
+	CreatedAt  time.Time                    `json:"created_at"`
+	UpdatedAt  time.Time                    `json:"updated_at"`
+	QnA        []QuestionAnswerWithQuestion `json:"QnA"`
+}
+
+type FeedbackResponseOutputForFeedback struct {
+	FeedbackID uint                        `json:"feedback_id"`
+	Responses  []QuestionAnswerForFeedback `json:"Responses"`
+}
+
+type QuestionAnswerForFeedback struct {
+	UserID    uint                         `json:"user_id"`
+	CreatedAt time.Time                    `json:"created_at"`
+	UpdatedAt time.Time                    `json:"updated_at"`
+	QnA       []QuestionAnswerWithQuestion `json:"QnA"`
 }

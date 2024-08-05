@@ -9,12 +9,20 @@ import (
 	"github.com/pratikgagare03/feedback/logger"
 	"github.com/pratikgagare03/feedback/models"
 	"github.com/pratikgagare03/feedback/repository"
-	"github.com/pratikgagare03/feedback/utils"
 )
 
 // CreateFeedback creates a new feedback
 func CreateFeedback(c *gin.Context) {
 	logger.Logs.Info().Msg("Creating feedback")
+
+	// Check if the user is an admin
+	err := helper.CheckUserType(c, "ADMIN")
+	if err != nil {
+		logger.Logs.Error().Msgf("Error while checking user type: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
 	var newFeedback models.FeedbackInput
 	// Bind the json to the struct
 	if err := c.ShouldBindJSON(&newFeedback); err != nil {
@@ -24,7 +32,7 @@ func CreateFeedback(c *gin.Context) {
 	}
 
 	// Validate the input
-	err := validate.Struct(newFeedback)
+	err = validate.Struct(newFeedback)
 	if err != nil {
 		logger.Logs.Error().Msgf("Error while validating feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -58,6 +66,7 @@ func CreateFeedback(c *gin.Context) {
 		}
 
 		var question models.Question
+		// Get the question type from Models
 		qtype, err := helper.GetQuestionType(questionInput.QuestionType)
 		if err != nil {
 			logger.Logs.Error().Msgf("Error while getting question type: %v", err)
@@ -69,7 +78,12 @@ func CreateFeedback(c *gin.Context) {
 		question.QuestionContent = questionInput.QuestionContent
 		question.QuestionType = qtype
 		// Insert the question
-		repository.GetQuestionRepository().InsertQuestion(&question)
+		err = repository.GetQuestionRepository().InsertQuestion(&question)
+		if err != nil {
+			logger.Logs.Error().Msgf("Error while inserting question: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
 		// Insert the options or ratings based on the question type
 		switch qtype {
@@ -90,8 +104,13 @@ func CreateFeedback(c *gin.Context) {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "error while marshaling options to []byte"})
 					return
 				}
-				// Insert the options
-				repository.GetOptionsRepository().InsertOptions(&options)
+				// Insert the options in the database
+				err = repository.GetOptionsRepository().InsertOptions(&options)
+				if err != nil {
+					logger.Logs.Error().Msgf("Error while saving options: %v", err)
+					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save options"})
+					return
+				}
 			}
 		case models.Ratings:
 			{
@@ -117,7 +136,7 @@ func CreateFeedback(c *gin.Context) {
 		}
 
 	}
-
+	// Return the final feedback
 	logger.Logs.Info().Msg("Feedback created successfully")
 	c.JSON(http.StatusCreated, finalFeedback)
 }
@@ -125,19 +144,58 @@ func CreateFeedback(c *gin.Context) {
 func GetFeedback(c *gin.Context) {
 	logger.Logs.Info().Msg("Fetching feedback")
 	feedbackId := c.Param("feedbackId")
-	if ok, err := utils.IsValidFeedbackId(feedbackId); ok {
+	// Check if the feedbackId is valid i.e present in the database
+	if ok, err := helper.IsValidFeedbackId(feedbackId); ok {
 		logger.Logs.Info().Msg("FeedbackId is valid")
 	} else if err != nil {
 		logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Fetch the feedback Questions
 	feedback, err := repository.GetQuestionRepository().FindQuestionsDetailed(feedbackId)
 	if err != nil || len(feedback) == 0 {
 		logger.Logs.Error().Msgf("Error while fetching feedback: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
+	// Return the feedback
 	logger.Logs.Info().Msg("Feedback fetched successfully")
 	c.JSON(http.StatusFound, feedback)
+}
+
+func TogglePublishStatus(published bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		feedbackId := c.Param("feedbackId")
+		if ok, err := helper.IsValidFeedbackId(feedbackId); ok {
+			logger.Logs.Info().Msg("FeedbackId is valid")
+		} else if err != nil {
+			logger.Logs.Error().Msgf("ERROR:invalid feedbackId %+v", err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if ok, err := helper.MatchFeedbackOwner(c, feedbackId); err != nil {
+			logger.Logs.Error().Msgf("Error while matching feedback owner: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		} else if !ok {
+			logger.Logs.Error().Msg("Unauthorized to access this resource")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized to access this resource"})
+			return
+		}
+
+		err := repository.GetFeedbackRepository().UpdatePublishedStatus(feedbackId, published)
+		if err != nil {
+			logger.Logs.Error().Msgf("Error while publishing feedback: %v", err.Error())
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if published {
+			logger.Logs.Info().Msg("Feedback published successfully")
+			c.JSON(http.StatusOK, gin.H{"message": "Feedback published successfully"})
+		} else {
+			logger.Logs.Info().Msg("Feedback unpublished successfully")
+			c.JSON(http.StatusOK, gin.H{"message": "Feedback unpublished successfully"})
+		}
+	}
 }

@@ -16,6 +16,10 @@ import (
 
 var validate = validator.New()
 
+const defaultRecordsPerPage = 10
+const maxRecordsPerPage = 10
+const defaultPage = 1
+
 // VerifyPasswordPassword verifies the password
 func VerifyPasswordPassword(userPassword, hashedPassword string) (bool, string) {
 	logger.Logs.Info().Msg("verifying password")
@@ -54,25 +58,20 @@ func SignUp(c *gin.Context) {
 	}
 
 	_, err := repository.GetUserRepository().FindUserByEmail(user.Email)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		logger.Logs.Error().Msgf("error while searching for email: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while searching for email."})
-		return
-	} else if err != gorm.ErrRecordNotFound {
-		logger.Logs.Error().Msg("email already exists")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "this email already exists."})
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			logger.Logs.Error().Msgf("error while searching for email: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while searching for email."})
+			return
+		}
+		logger.Logs.Info().Msg("no user does exist with this email")
+	} else {
+		logger.Logs.Error().Msg("user already exists with this email")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "user already exists with this email"})
 		return
 	}
 	hashedPass := HashPassword(user.Password)
 	user.Password = hashedPass
-
-	// token, refreshToken, err := helper.GenerateAllTokens(user.Email, user.First_name, user.Last_name, user.User_type, user.UserId)
-	// if err != nil {
-	// 	msg := fmt.Sprintf("failed to generate token")
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-	// 	return
-	// }
-	// user.Refresh_token = refreshToken
 
 	err = repository.GetUserRepository().InsertUser(&user)
 	if err != nil {
@@ -134,38 +133,57 @@ func Login(c *gin.Context) {
 }
 func GetUsers(c *gin.Context) {
 	logger.Logs.Info().Msg("getting users")
+
+	// Check user type
 	if err := helper.CheckUserType(c, "ADMIN"); err != nil {
 		logger.Logs.Error().Msgf("error while checking user type: %v", err)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+	// Fetch total count
+	totalCount, err := repository.GetUserRepository().GetUsersCount()
+	if err != nil {
+		logger.Logs.Error().Msgf("error while fetching user count: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occurred while fetching user count"})
+		return
+	}
+	// Parse recordsPerPage
+	recordsPerPage, err := helper.ParseQueryInt(c, "recordsPerPage", defaultRecordsPerPage, maxRecordsPerPage)
+	if err != nil {
+		logger.Logs.Error().Msgf("error while parsing recordsPerPage: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	recordsPerPage, err := strconv.Atoi(c.Query("recordsPerPage"))
-	if err != nil || recordsPerPage < 1 {
-		logger.Logs.Error().Msg("error while getting records per page")
-		logger.Logs.Info().Msg("setting records per page to 10")
-		recordsPerPage = 10
-	}
-	page, err := strconv.Atoi(c.Query("page"))
-	if err != nil || page < 1 {
-		logger.Logs.Error().Msg("error while getting page")
-		logger.Logs.Info().Msg("setting page to 1")
-		page = 1
+	// Parse page
+	page, err := helper.ParseQueryInt(c, "page", defaultPage, int(totalCount)/recordsPerPage)
+	if err != nil {
+		logger.Logs.Error().Msgf("error while parsing page: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	startIndex, err := strconv.Atoi(c.Query("startIndex"))
-	if err != nil || startIndex < 1 {
-		logger.Logs.Error().Msg("error while getting start index")
-		startIndex = (page - 1) * recordsPerPage
+	// Parse startIndex
+	startIndex, err := helper.ParseQueryInt(c, "startIndex", (page-1)*recordsPerPage, int(totalCount)-1)
+	if err != nil {
+		logger.Logs.Error().Msgf("error while parsing startIndex: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	// Fetch users
 	users, err := repository.GetUserRepository().GetAllUsersByOffsetLimit(startIndex, recordsPerPage)
 	if err != nil {
 		logger.Logs.Error().Msgf("error while listing user items: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while listing user items"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occurred while listing user items"})
 		return
 	}
+
 	logger.Logs.Info().Msg("users listed successfully")
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, gin.H{
+		"totalCount": totalCount,
+		"users":      users,
+	})
 }
 
 func GetUser(c *gin.Context) {

@@ -10,25 +10,26 @@ type ResponseRepository interface {
 	FindResponseByID(responseID string) (models.FeedbackResponse, error)
 	FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error)
 	FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error)
-	GetAllResponsesForUser(userId string) ([]models.FeedbackResponse, error)
-	UpdateResponse(response *models.FeedbackResponse) error
+	GetAllResponsesForUser(userId uint) ([]models.FeedbackResponse, error)
+	GetResponseCountForUser(userId string) (int64, error)
 	DeleteResponse(responseID string) error
-	GetResponses(tagcontains string) ([]models.FeedbackResponse, error)
 }
 
 type postgresResponseRepository struct {
 	postgresDb *gorm.DB
 }
 
-// GetResponses implements ResponseRepository.
-func (p *postgresResponseRepository) GetResponses(tagcontains string) ([]models.FeedbackResponse, error) {
-	panic("unimplemented")
+// GetResponseCountForUser implements ResponseRepository.
+func (p *postgresResponseRepository) GetResponseCountForUser(userId string) (int64, error) {
+	var count int64
+	res := Db.Model(&models.FeedbackResponse{}).Where("user_id=?", userId).Count(&count)
+	return count, res.Error
 }
 
 // FindResponseByFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
-	res := Db.Find(&matchingResponses, "feedback_id=?", feedbackID)
+	res := Db.Find(&matchingResponses, "feedback_id=?", feedbackID).Order("user_id")
 	return matchingResponses, res.Error
 }
 
@@ -52,7 +53,7 @@ func (p *postgresResponseRepository) FindResponseByID(responseID string) (models
 }
 
 // GetResponses implements ResponseRepository.
-func (p *postgresResponseRepository) GetAllResponsesForUser(userId string) ([]models.FeedbackResponse, error) {
+func (p *postgresResponseRepository) GetAllResponsesForUser(userId uint) ([]models.FeedbackResponse, error) {
 	var feedbackResponse []models.FeedbackResponse
 	res := Db.Find(&feedbackResponse, "user_id=?", userId).Order("feedback_id")
 	return feedbackResponse, res.Error
@@ -62,11 +63,6 @@ func (p *postgresResponseRepository) GetAllResponsesForUser(userId string) ([]mo
 func (p *postgresResponseRepository) InsertResponse(response []models.FeedbackResponse) error {
 	res := Db.Create(&response)
 	return res.Error
-}
-
-// UpdateResponse implements ResponseRepository.
-func (p *postgresResponseRepository) UpdateResponse(response *models.FeedbackResponse) error {
-	panic("unimplemented")
 }
 
 func newPostgresResponseRepository(db *gorm.DB) ResponseRepository {

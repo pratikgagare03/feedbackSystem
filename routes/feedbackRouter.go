@@ -9,8 +9,9 @@ import (
 func FeedbackRoutes(incomingRoutes *gin.RouterGroup) {
 	incomingRoutes.Use(middleware.Authenticate)
 	incomingRoutes.POST("/create", handlers.CreateFeedback)
-	// feedbackGroup.POST("/:{feedbackId}/addQuestion", handlers.AddQuestion)
 	incomingRoutes.GET("/:feedbackId", handlers.GetFeedback)
-	incomingRoutes.POST("/respond/:feedbackId", handlers.SaveFeedbackResponse)
-	incomingRoutes.GET("/respond/:userID", handlers.GetAllResponsesForUser)
+	incomingRoutes.POST("/:feedbackId/respond", handlers.SaveFeedbackResponse)
+	incomingRoutes.GET("/:feedbackId/responses", handlers.GetAllResponsesForFeedback)
+	incomingRoutes.PUT("/:feedbackId/publish", handlers.TogglePublishStatus(true))
+	incomingRoutes.PUT("/:feedbackId/unpublish", handlers.TogglePublishStatus(false))
 }

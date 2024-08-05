@@ -23,10 +23,18 @@ type UserRepository interface {
 	FindUserByEmail(email string) (*models.User, error)
 	DeleteUser(userID string) error
 	GetAllUsersByOffsetLimit(offset, limit int) ([]models.User, error)
+	GetUsersCount() (int64, error)
 }
 
 type postgresUserRepository struct {
 	postgresDb *gorm.DB
+}
+
+// GetTotalUsers implements UserRepository.
+func (p *postgresUserRepository) GetUsersCount() (int64, error) {
+	var count int64
+	res := Db.Model(&models.User{}).Count(&count)
+	return count, res.Error
 }
 
 // FindUserByEmail implements UserRepository.
@@ -62,7 +70,6 @@ func (p *postgresUserRepository) InsertUser(user *models.User) error {
 	return res.Error
 }
 
-// UpdateUser implements UserRepository.
 
 func newPostgresUserRepository(db *gorm.DB) UserRepository {
 	return &postgresUserRepository{

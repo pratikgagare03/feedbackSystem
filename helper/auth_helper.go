@@ -6,6 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pratikgagare03/feedback/logger"
+	"github.com/pratikgagare03/feedback/repository"
+	"gorm.io/gorm"
 )
 
 // CheckUserType checks if the user type is the same as the role (admin, user, etc)
@@ -30,4 +32,17 @@ func MatchUserTypeToUid(c *gin.Context, userId string) error {
 	}
 
 	return nil
+}
+
+func MatchFeedbackOwner(c *gin.Context, feedbackID string) (bool, error) {
+	feedback, err := repository.GetFeedbackRepository().FindFeedbackByID(feedbackID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	} else if feedback.UserID == c.GetUint("uid") {
+		return true, nil
+	}
+	return false, nil
 }

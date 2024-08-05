@@ -1,6 +1,7 @@
-package utils
+package helper
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/pratikgagare03/feedback/repository"
@@ -24,6 +25,9 @@ func IsValidUser(userId string) (bool, error) {
 }
 
 func IsValidFeedbackId(feedbackId string) (bool, error) {
+	if feedbackId == "" {
+		return false, errors.New("feedbackId is empty")
+	}
 	_, err := repository.GetFeedbackRepository().FindFeedbackByID(feedbackId)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -66,4 +70,12 @@ func ResponseExistForFeedback(feedbackID string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func IsFeedbackPublished(feedbackID string) (bool, error) {
+	feedback, err := repository.GetFeedbackRepository().FindFeedbackByID(feedbackID)
+	if err != nil {
+		return false, err
+	}
+	return feedback.Published, nil
 }

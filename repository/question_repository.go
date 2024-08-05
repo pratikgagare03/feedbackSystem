@@ -15,7 +15,6 @@ type QuestionRepository interface {
 	GetQuestionsByFeedbackID(feedbackId string) ([]models.Question, error)
 	UpdateQuestion(question *models.Question) error
 	DeleteQuestion(questionID string) error
-	GetQuestions(tagcontains string) ([]models.Question, error)
 }
 
 type postgresQuestionRepository struct {
@@ -58,11 +57,6 @@ func (p *postgresQuestionRepository) DeleteQuestion(questionID string) error {
 
 // FindQuestionByID implements QuestionRepository.
 func (p *postgresQuestionRepository) FindQuestionByID(questionID string) (*models.Question, error) {
-	panic("unimplemented")
-}
-
-// GetQuestions implements QuestionRepository.
-func (p *postgresQuestionRepository) GetQuestions(tagcontains string) ([]models.Question, error) {
 	panic("unimplemented")
 }
 

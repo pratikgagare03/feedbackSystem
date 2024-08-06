@@ -156,14 +156,30 @@ func GetAllResponsesForUser(c *gin.Context) {
 	logger.Logs.Info().Msg("Fetching Responses for user")
 	userId := c.GetUint("uid")
 
-	responses, err := repository.GetResponseRepository().GetAllResponsesForUser(userId)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			logger.Logs.Error().Msgf("no responses found for user Error:%v", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": "no responses found for user"})
+	var responses []models.FeedbackResponse
+	var err error
+	dateFrom := c.Query("dateFrom")
+	dateTo := c.Query("dateTo")
+
+	if dateFrom == "" && dateTo == "" {
+		logger.Logs.Info().Msg("dateFrom or dateTo is empty skip applying filter")
+		responses, err = repository.GetResponseRepository().GetAllResponsesForUser(userId)
+	} else {
+		dateFromParsed, dateToParsed, err := helper.GetParsedDateRange(dateFrom, dateTo)
+		if err != nil {
+			logger.Logs.Error().Msgf("error while parsing date range: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		logger.Logs.Error().Msgf("error while getting responses for user: %v", err)
+		responses, err = repository.GetResponseRepository().GetAllResponsesForUserDateFilter(userId, dateFromParsed, dateToParsed)
+	}
+
+	if len(responses) == 0 || err == gorm.ErrRecordNotFound {
+		logger.Logs.Error().Msgf("no responses found for feedback Error:%v", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "no responses found for feedback"})
+		return
+	} else if err != nil {
+		logger.Logs.Error().Msgf("error while getting responses for feedback: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -183,6 +199,7 @@ func GetAllResponsesForUser(c *gin.Context) {
 		}
 		responseOp.Responses = append(responseOp.Responses, newResponseOp)
 	}
+	responseOp.TotalResponses = len(responseOp.Responses)
 	c.JSON(http.StatusFound, responseOp)
 }
 
@@ -211,14 +228,29 @@ func GetAllResponsesForFeedback(c *gin.Context) {
 	} else if ok {
 		logger.Logs.Info().Msg("FeedbackId is valid")
 	}
+	dateFrom := c.Query("dateFrom")
+	dateTo := c.Query("dateTo")
 
-	responses, err := repository.GetResponseRepository().FindResponseByFeedbackId(feedbackId)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			logger.Logs.Error().Msgf("no responses found for feedback Error:%v", err)
-			c.JSON(http.StatusNotFound, gin.H{"error": "no responses found for feedback"})
+	var responses []models.FeedbackResponse
+	var err error
+	if dateFrom == "" && dateTo == "" {
+		logger.Logs.Info().Msg("dateFrom or dateTo is empty skip applying filter")
+		responses, err = repository.GetResponseRepository().FindResponseByFeedbackId(feedbackId)
+	} else {
+		dateFromParsed, dateToParsed, err := helper.GetParsedDateRange(dateFrom, dateTo)
+		if err != nil {
+			logger.Logs.Error().Msgf("error while parsing date range: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		responses, err = repository.GetResponseRepository().FindResponseByFeedbackIdDateFilter(feedbackId, dateFromParsed, dateToParsed)
+	}
+
+	if len(responses) == 0 || err == gorm.ErrRecordNotFound {
+		logger.Logs.Error().Msgf("no responses found for feedback Error:%v", err)
+		c.JSON(http.StatusNotFound, gin.H{"error": "no responses found for feedback"})
+		return
+	} else if err != nil {
 		logger.Logs.Error().Msgf("error while getting responses for feedback: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -240,5 +272,6 @@ func GetAllResponsesForFeedback(c *gin.Context) {
 		}
 		responseOp.Responses = append(responseOp.Responses, newResponseOp)
 	}
+	responseOp.TotalResponses = len(responseOp.Responses)
 	c.JSON(http.StatusFound, responseOp)
 }

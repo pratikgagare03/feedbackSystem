@@ -2,7 +2,9 @@ package helper
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/pratikgagare03/feedback/repository"
 	"gorm.io/gorm"
@@ -78,4 +80,26 @@ func IsFeedbackPublished(feedbackID string) (bool, error) {
 		return false, err
 	}
 	return feedback.Published, nil
+}
+
+func GetParsedDateRange(dateFrom, dateTo string) (time.Time, time.Time, error) {
+	dateFromParsed, err := time.Parse("2006-01-02", dateFrom)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("error while parsing dateFrom: %v", err)
+	}
+
+	dateToParsed, err := time.Parse("2006-01-02", dateTo)
+	if err != nil {
+		return time.Time{}, time.Time{}, fmt.Errorf("error while parsing dateTo: %v", err)
+	}
+
+	if dateFromParsed.Format("2006-01-02") > dateToParsed.Format("2006-01-02") {
+		return time.Time{}, time.Time{}, fmt.Errorf("dateFrom should be less than dateTo")
+	}
+
+	if dateFromParsed.Format("2006-01-02") > time.Now().Format("2006-01-02") || dateToParsed.Format("2006-01-02") > time.Now().Format("2006-01-02") {
+		return time.Time{}, time.Time{}, fmt.Errorf("dateFrom and dateTo should be less than or equal to current date")
+	}
+
+	return dateFromParsed, dateToParsed, nil
 }

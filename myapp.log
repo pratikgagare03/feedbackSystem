@@ -1,31 +1,66 @@
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Creating connection string"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Connecting to the database"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Running database migrations"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Database connection established successfully"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Starting the server"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Setting up api routes"}
-{"level":"info","time":"2024-08-05T18:24:39+05:30","message":"Starting the server on port :8000"}
-{"level":"info","time":"2024-08-05T18:24:42+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:42+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:42+05:30","message":"ERROR: A Response already exist."}
-{"level":"info","time":"2024-08-05T18:24:43+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:43+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:43+05:30","message":"ERROR: A Response already exist."}
-{"level":"info","time":"2024-08-05T18:24:49+05:30","message":"FeedbackId is valid"}
-{"level":"info","time":"2024-08-05T18:24:49+05:30","message":"Feedback unpublished successfully"}
-{"level":"info","time":"2024-08-05T18:24:54+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:54+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:54+05:30","message":"ERROR: A Response already exist."}
-{"level":"info","time":"2024-08-05T18:24:55+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:55+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:55+05:30","message":"ERROR: A Response already exist."}
-level":"info","time":"2024-08-05T18:23:51+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:23:51+05:30","message":"Feedback is not published"}
-{"level":"info","time":"2024-08-05T18:24:03+05:30","message":"FeedbackId is valid"}
-{"level":"info","time":"2024-08-05T18:24:03+05:30","message":"Feedback published successfully"}
-{"level":"info","time":"2024-08-05T18:24:07+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:07+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:07+05:30","message":"ERROR: A Response already exist."}
-{"level":"info","time":"2024-08-05T18:24:09+05:30","message":"Saving feedback response"}
-{"level":"info","time":"2024-08-05T18:24:09+05:30","message":"FeedbackId is valid"}
-{"level":"error","time":"2024-08-05T18:24:09+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-06T17:27:06+05:30","message":"Creating connection string"}
+{"level":"info","time":"2024-08-06T17:27:06+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-06T17:27:06+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-06T17:27:07+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-06T17:27:07+05:30","message":"Starting the server"}
+{"level":"info","time":"2024-08-06T17:27:07+05:30","message":"Setting up api routes"}
+{"level":"info","time":"2024-08-06T17:27:07+05:30","message":"Starting the server on port :8000"}
+{"level":"info","time":"2024-08-06T17:27:10+05:30","message":"Fetching Responses for feedback"}
+{"level":"info","time":"2024-08-06T17:27:10+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T17:27:10+05:30","message":"dateFrom or dateTo is empty skip applying filter"}
+{"level":"info","time":"2024-08-06T17:27:20+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T17:27:20+05:30","message":"dateFrom or dateTo is empty skip applying filter"}
+:"error","time":"2024-08-06T16:05:47+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-06T16:05:55+05:30","message":"Fetching feedback"}
+{"level":"info","time":"2024-08-06T16:05:55+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T16:05:55+05:30","message":"Feedback fetched successfully"}
+{"level":"info","time":"2024-08-06T16:06:02+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-06T16:06:02+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T16:06:02+05:30","message":"Feedback is not published"}
+{"level":"info","time":"2024-08-06T16:06:16+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T16:06:16+05:30","message":"Feedback published successfully"}
+{"level":"info","time":"2024-08-06T16:06:28+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-06T16:06:28+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T16:06:28+05:30","message":"Question with provided id not present in respective feedback."}
+{"level":"info","time":"2024-08-06T16:07:54+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-06T16:07:54+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T16:07:54+05:30","message":"Response saved successfully"}
+{"level":"info","time":"2024-08-06T16:07:56+05:30","message":"Saving feedback response"}
+{"level":"info","time":"2024-08-06T16:07:56+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T16:07:56+05:30","message":"ERROR: A Response already exist."}
+{"level":"info","time":"2024-08-06T16:08:00+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T16:08:04+05:30","message":"Fetching Responses for user"}
+{"level":"error","time":"2024-08-06T16:08:04+05:30","message":"error while parsing date range: dateFrom should be less than dateTo"}
+{"level":"info","time":"2024-08-06T16:08:08+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T16:08:14+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T16:08:17+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T16:08:20+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T16:08:20+05:30","message":"dateFrom or dateTo is empty skip applying filter"}
+{"level":"info","time":"2024-08-06T17:14:47+05:30","message":"Fetching Responses for feedback"}
+{"level":"info","time":"2024-08-06T17:14:47+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T17:14:47+05:30","message":"no responses found for feedback Error:<nil>"}
+{"level":"info","time":"2024-08-06T17:14:57+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T17:15:37+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T17:15:43+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T17:15:43+05:30","message":"dateFrom or dateTo is empty skip applying filter"}
+{"level":"info","time":"2024-08-06T17:18:58+05:30","message":"Fetching Responses for feedback"}
+{"level":"info","time":"2024-08-06T17:18:58+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T17:18:58+05:30","message":"dateFrom or dateTo is empty skip applying filter"}
+{"level":"info","time":"2024-08-06T17:19:53+05:30","message":"Fetching feedback"}
+{"level":"info","time":"2024-08-06T17:19:53+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T17:19:53+05:30","message":"Feedback fetched successfully"}
+{"level":"info","time":"2024-08-06T17:20:04+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T17:20:04+05:30","message":"Error while publishing feedback: feedback already in the desired state"}
+{"level":"info","time":"2024-08-06T17:20:18+05:30","message":"FeedbackId is valid"}
+{"level":"info","time":"2024-08-06T17:20:18+05:30","message":"Feedback unpublished successfully"}
+{"level":"info","time":"2024-08-06T17:20:20+05:30","message":"FeedbackId is valid"}
+{"level":"error","time":"2024-08-06T17:20:20+05:30","message":"Error while publishing feedback: feedback already in the desired state"}
+{"level":"info","time":"2024-08-06T17:20:51+05:30","message":"getting users"}
+{"level":"error","time":"2024-08-06T17:20:51+05:30","message":"out of range page: 5"}
+{"level":"info","time":"2024-08-06T17:20:51+05:30","message":"setting page to default value 1"}
+{"level":"error","time":"2024-08-06T17:20:51+05:30","message":"out of range startIndex: 10"}
+{"level":"info","time":"2024-08-06T17:20:51+05:30","message":"setting startIndex to default value 0"}
+{"level":"info","time":"2024-08-06T17:20:51+05:30","message":"users listed successfully"}
+{"level":"info","time":"2024-08-06T17:21:01+05:30","message":"user found successfully"}
+{"level":"info","time":"2024-08-06T17:21:13+05:30","message":"Fetching Responses for user"}
+{"level":"info","time":"2024-08-06T17:21:13+05:30","message":"dateFrom or dateTo is empty skip applying filter"}

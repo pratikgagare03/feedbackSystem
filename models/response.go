@@ -32,8 +32,9 @@ type QuestionAnswerWithQuestion struct {
 // QuestionAnswer is a struct that represents the answer for a question.
 
 type FeedbackResponseOutputForUser struct {
-	UserID    uint                    `json:"user_id"`
-	Responses []QuestionAnswerForUser `json:"Responses"`
+	UserID         uint                    `json:"user_id"`
+	TotalResponses int                     `json:"total_responses"`
+	Responses      []QuestionAnswerForUser `json:"Responses"`
 }
 type QuestionAnswerForUser struct {
 	FeedbackID uint                         `json:"feedback_id"`
@@ -43,8 +44,9 @@ type QuestionAnswerForUser struct {
 }
 
 type FeedbackResponseOutputForFeedback struct {
-	FeedbackID uint                        `json:"feedback_id"`
-	Responses  []QuestionAnswerForFeedback `json:"Responses"`
+	FeedbackID     uint                        `json:"feedback_id"`
+	TotalResponses int                         `json:"total_responses"`
+	Responses      []QuestionAnswerForFeedback `json:"Responses"`
 }
 
 type QuestionAnswerForFeedback struct {

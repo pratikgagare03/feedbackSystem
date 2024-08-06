@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/pratikgagare03/feedback/models"
 	"gorm.io/gorm"
 )
@@ -10,7 +12,9 @@ type ResponseRepository interface {
 	FindResponseByID(responseID string) (models.FeedbackResponse, error)
 	FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error)
 	FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error)
+	FindResponseByFeedbackIdDateFilter(feedbackID string, fromTime, toTime time.Time) ([]models.FeedbackResponse, error)
 	GetAllResponsesForUser(userId uint) ([]models.FeedbackResponse, error)
+	GetAllResponsesForUserDateFilter(userId uint, fromTime, toTime time.Time) ([]models.FeedbackResponse, error)
 	GetResponseCountForUser(userId string) (int64, error)
 	DeleteResponse(responseID string) error
 }
@@ -30,6 +34,11 @@ func (p *postgresResponseRepository) GetResponseCountForUser(userId string) (int
 func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
 	res := Db.Find(&matchingResponses, "feedback_id=?", feedbackID).Order("user_id")
+	return matchingResponses, res.Error
+}
+func (p *postgresResponseRepository) FindResponseByFeedbackIdDateFilter(feedbackID string, fromTime, toTime time.Time) ([]models.FeedbackResponse, error) {
+	var matchingResponses []models.FeedbackResponse
+	res := Db.Find(&matchingResponses, "feedback_id=? AND DATE(created_at) BETWEEN ? AND ?", feedbackID, fromTime.Format("2006-01-02"), toTime.Format("2006-01-02")).Order("user_id")
 	return matchingResponses, res.Error
 }
 
@@ -56,6 +65,11 @@ func (p *postgresResponseRepository) FindResponseByID(responseID string) (models
 func (p *postgresResponseRepository) GetAllResponsesForUser(userId uint) ([]models.FeedbackResponse, error) {
 	var feedbackResponse []models.FeedbackResponse
 	res := Db.Find(&feedbackResponse, "user_id=?", userId).Order("feedback_id")
+	return feedbackResponse, res.Error
+}
+func (p *postgresResponseRepository) GetAllResponsesForUserDateFilter(userId uint, fromTime, toTime time.Time) ([]models.FeedbackResponse, error) {
+	var feedbackResponse []models.FeedbackResponse
+	res := Db.Find(&feedbackResponse, "user_id=? AND DATE(created_at) BETWEEN ? AND ?", userId, fromTime.Format("2006-01-02"), toTime.Format("2006-01-02")).Order("feedback_id")
 	return feedbackResponse, res.Error
 }
 

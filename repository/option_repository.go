@@ -10,10 +10,18 @@ type OptionsRepository interface {
 	FindOptionsByQueId(questionID uint) (*models.Options, error)
 	UpdateOptions(option *models.Options) error
 	DeleteOptions(optionID string) error
+	GetOptionsCountByQuestionId(questionID uint) (int64, error)
 }
 
 type postgresOptionsRepository struct {
 	postgresDb *gorm.DB
+}
+
+// GetOptionsCountByQuestionId implements OptionsRepository.
+func (p *postgresOptionsRepository) GetOptionsCountByQuestionId(questionID uint) (int64, error) {
+	var count int64
+	res := Db.Model(&models.Options{}).Where("que_id=?", questionID).Count(&count)
+	return count, res.Error
 }
 
 // FindOptionsByQueId implements OptionsRepository.

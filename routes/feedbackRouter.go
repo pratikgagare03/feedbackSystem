@@ -14,4 +14,5 @@ func FeedbackRoutes(incomingRoutes *gin.RouterGroup) {
 	incomingRoutes.GET("/:feedbackId/responses", handlers.GetAllResponsesForFeedback)
 	incomingRoutes.PUT("/:feedbackId/publish", handlers.TogglePublishStatus(true))
 	incomingRoutes.PUT("/:feedbackId/unpublish", handlers.TogglePublishStatus(false))
+	incomingRoutes.GET("/:feedbackId/stats", handlers.GetFeedbackStats)
 }

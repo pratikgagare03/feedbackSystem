@@ -68,6 +68,7 @@ func SaveFeedbackResponse(c *gin.Context) {
 		var responseDb models.FeedbackResponse
 		responseDb.UserID = userId
 		responseDb.FeedbackID = uint(feedbackIdInt)
+		responseDb.QuestionID = qna.QuestionID
 		// check if the question is present in the feedback
 		if question, err := repository.GetQuestionRepository().FindQuestionByQuestionIdFeedbackId(qna.QuestionID, feedbackID); err != nil {
 			logger.Logs.Error().Msg("Question with provided id not present in respective feedback.")

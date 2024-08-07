@@ -20,3 +20,5 @@ func GetQuestionType(s string) (models.QuestionType, error) {
 		return "", errors.New("invalid question type, required enum(\"mcq\",\"textinput\",\"ratings\",\"singlechoice\") got:" + s)
 	}
 }
+
+

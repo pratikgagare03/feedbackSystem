@@ -11,6 +11,8 @@ type FeedbackResponse struct {
 	User            User         `gorm:"foreignKey:UserID" json:"-"`
 	FeedbackID      uint         `json:"feedback_id"`
 	Feedback        Feedback     `gorm:"foreignKey:FeedbackID" json:"-"`
+	QuestionID      uint         `json:"question_id"`
+	Question        Question     `gorm:"foreignKey:QuestionID" json:"-"`
 	QuestionContent string       `json:"question_content"`
 	QuestionType    QuestionType `json:"question_type"`
 	Answer          string       `json:"answer"`

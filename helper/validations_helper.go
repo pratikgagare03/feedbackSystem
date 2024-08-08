@@ -82,24 +82,47 @@ func IsFeedbackPublished(feedbackID string) (bool, error) {
 	return feedback.Published, nil
 }
 
-func GetParsedDateRange(dateFrom, dateTo string) (time.Time, time.Time, error) {
-	dateFromParsed, err := time.Parse("2006-01-02", dateFrom)
+func GetParsedDateRange(dateFrom, dateTo string) (string, string, error) {
+	layout := "2006-01-02"
+
+	// Parse dateFrom
+	dateFromParsed, err := time.Parse(layout, dateFrom)
 	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("error while parsing dateFrom: %v", err)
+		return "", "", fmt.Errorf("error while parsing dateFrom: %v", err)
+	}
+	// Determine the start of dateFrom and end of dateFrom day
+	startOfDateFrom := time.Date(dateFromParsed.Year(), dateFromParsed.Month(), dateFromParsed.Day(), 0, 0, 0, 0, time.UTC)
+	endOfDateFrom := startOfDateFrom.Add(24 * time.Hour).Add(-time.Nanosecond)
+
+	var dateToParsed time.Time
+	if dateTo == "" || dateTo == dateFrom {
+		// If dateTo is not provided or is the same as dateFrom, use the same date as dateTo
+		dateToParsed = endOfDateFrom
+	} else {
+		// Parse dateTo
+		dateToParsed, err = time.Parse(layout, dateTo)
+		if err != nil {
+			return "", "", fmt.Errorf("error while parsing dateTo: %v", err)
+		}
+		// Ensure dateTo covers the whole day
+		startOfDateTo := time.Date(dateToParsed.Year(), dateToParsed.Month(), dateToParsed.Day(), 0, 0, 0, 0, time.UTC)
+		dateToParsed = startOfDateTo.Add(24 * time.Hour).Add(-time.Nanosecond)
 	}
 
-	dateToParsed, err := time.Parse("2006-01-02", dateTo)
-	if err != nil {
-		return time.Time{}, time.Time{}, fmt.Errorf("error while parsing dateTo: %v", err)
+	// Get the current date
+	now := time.Now().UTC()
+	startOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+	endOfToday := startOfToday.Add(24 * time.Hour).Add(-time.Nanosecond)
+
+	// Check if dateFrom is after dateTo
+	if dateFromParsed.After(dateToParsed) {
+		return "", "", fmt.Errorf("dateFrom should be less than or equal to dateTo")
 	}
 
-	if dateFromParsed.Format("2006-01-02") > dateToParsed.Format("2006-01-02") {
-		return time.Time{}, time.Time{}, fmt.Errorf("dateFrom should be less than dateTo")
+	// Check if the dates are in the future
+	if dateToParsed.After(endOfToday) {
+		return "", "", fmt.Errorf("dateFrom and dateTo should be less than or equal to the current date")
 	}
 
-	if dateFromParsed.Format("2006-01-02") > time.Now().Format("2006-01-02") || dateToParsed.Format("2006-01-02") > time.Now().Format("2006-01-02") {
-		return time.Time{}, time.Time{}, fmt.Errorf("dateFrom and dateTo should be less than or equal to current date")
-	}
-
-	return dateFromParsed, dateToParsed, nil
+	return dateFromParsed.Format(layout), dateToParsed.Format(layout), nil
 }

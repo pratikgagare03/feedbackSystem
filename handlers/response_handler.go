@@ -229,23 +229,14 @@ func GetAllResponsesForFeedback(c *gin.Context) {
 	} else if ok {
 		logger.Logs.Info().Msg("FeedbackId is valid")
 	}
-	dateFrom := c.Query("dateFrom")
-	dateTo := c.Query("dateTo")
-
-	var responses []models.FeedbackResponse
-	var err error
-	if dateFrom == "" && dateTo == "" {
-		logger.Logs.Info().Msg("dateFrom or dateTo is empty skip applying filter")
-		responses, err = repository.GetResponseRepository().FindResponseByFeedbackId(feedbackId)
-	} else {
-		dateFromParsed, dateToParsed, err := helper.GetParsedDateRange(dateFrom, dateTo)
-		if err != nil {
-			logger.Logs.Error().Msgf("error while parsing date range: %v", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		responses, err = repository.GetResponseRepository().FindResponseByFeedbackIdDateFilter(feedbackId, dateFromParsed, dateToParsed)
+	params, err := helper.GetParamsModel(c)
+	if err != nil {
+		logger.Logs.Error().Msgf("error while getting query params: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	responses, err := repository.GetResponseRepository().GetResponsesWithQueryFilter(params, feedbackId)
 
 	if len(responses) == 0 || err == gorm.ErrRecordNotFound {
 		logger.Logs.Error().Msgf("no responses found for feedback Error:%v", err)

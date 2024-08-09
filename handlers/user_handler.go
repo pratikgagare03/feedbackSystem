@@ -104,7 +104,7 @@ func Login(c *gin.Context) {
 	pasIsValid, msg := VerifyPasswordPassword(user.Password, foundUser.Password)
 	if !pasIsValid {
 		logger.Logs.Error().Msgf("error while verifying password: %v", msg)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 

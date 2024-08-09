@@ -19,15 +19,16 @@ type ResponseRepository interface {
 }
 
 type postgresResponseRepository struct {
-	postgresDb *gorm.DB
+	postgresdb *gorm.DB
 }
 
 func (p *postgresResponseRepository) GetResponsesWithQueryFilter(params models.QueryParams, feedbackId string) ([]models.FeedbackResponse, error) {
 	var responses []models.FeedbackResponse
+	
 	var err error
 
 	// Construct base query
-	query := Db.Model(&models.FeedbackResponse{}).Where("feedback_id = ?", feedbackId)
+	query := db.Model(&models.FeedbackResponse{}).Where("feedback_id = ?", feedbackId)
 
 	// Apply date filter if provided
 	if params.DateFrom != "" && params.DateTo != "" {
@@ -52,26 +53,26 @@ func (p *postgresResponseRepository) GetResponsesWithQueryFilter(params models.Q
 // GetResponseCountForUser implements ResponseRepository.
 func (p *postgresResponseRepository) GetResponseCountForUser(userId string) (int64, error) {
 	var count int64
-	res := Db.Model(&models.FeedbackResponse{}).Where("user_id=?", userId).Count(&count)
+	res := db.Model(&models.FeedbackResponse{}).Where("user_id=?", userId).Count(&count)
 	return count, res.Error
 }
 
 // FindResponseByFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByFeedbackId(feedbackID string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
-	res := Db.Find(&matchingResponses, "feedback_id=?", feedbackID).Order("user_id")
+	res := db.Find(&matchingResponses, "feedback_id=?", feedbackID).Order("user_id")
 	return matchingResponses, res.Error
 }
 func (p *postgresResponseRepository) FindResponseByFeedbackIdDateFilter(feedbackID, fromTime, toTime string) ([]models.FeedbackResponse, error) {
 	var matchingResponses []models.FeedbackResponse
-	res := Db.Find(&matchingResponses, "feedback_id=? AND DATE(created_at) BETWEEN ? AND ?", feedbackID, fromTime, toTime).Order("user_id")
+	res := db.Find(&matchingResponses, "feedback_id=? AND DATE(created_at) BETWEEN ? AND ?", feedbackID, fromTime, toTime).Order("user_id")
 	return matchingResponses, res.Error
 }
 
 // FindResponseByUserIdFeedbackId implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByUserIdFeedbackId(userID uint, feedbackID string) (models.FeedbackResponse, error) {
 	var matchingResponses models.FeedbackResponse
-	res := Db.First(&matchingResponses, "feedback_id=? AND user_id=?", feedbackID, userID)
+	res := db.First(&matchingResponses, "feedback_id=? AND user_id=?", feedbackID, userID)
 	return matchingResponses, res.Error
 }
 
@@ -83,33 +84,34 @@ func (p *postgresResponseRepository) DeleteResponse(responseID string) error {
 // FindResponseByID implements ResponseRepository.
 func (p *postgresResponseRepository) FindResponseByID(responseID string) (models.FeedbackResponse, error) {
 	var fd models.FeedbackResponse
-	res := Db.First(&fd, responseID)
+	res := db.First(&fd, responseID)
 	return fd, res.Error
 }
 
 // GetResponses implements ResponseRepository.
 func (p *postgresResponseRepository) GetAllResponsesForUser(userId uint) ([]models.FeedbackResponse, error) {
 	var feedbackResponse []models.FeedbackResponse
-	res := Db.Find(&feedbackResponse, "user_id=?", userId).Order("feedback_id")
+	res := db.Find(&feedbackResponse, "user_id=?", userId).Order("feedback_id")
 	return feedbackResponse, res.Error
 }
 func (p *postgresResponseRepository) GetAllResponsesForUserDateFilter(userId uint, fromTime, toTime string) ([]models.FeedbackResponse, error) {
 	var feedbackResponse []models.FeedbackResponse
-	res := Db.Find(&feedbackResponse, "user_id=? AND DATE(created_at) BETWEEN ? AND ?", userId, fromTime, toTime).Order("feedback_id")
+	res := db.Find(&feedbackResponse, "user_id=? AND DATE(created_at) BETWEEN ? AND ?", userId, fromTime, toTime).Order("feedback_id")
 	return feedbackResponse, res.Error
 }
 
 // InsertResponse implements ResponseRepository.
 func (p *postgresResponseRepository) InsertResponse(response []models.FeedbackResponse) error {
-	res := Db.Create(&response)
+	res := db.Create(&response)
+	
 	return res.Error
 }
 
 func newPostgresResponseRepository(db *gorm.DB) ResponseRepository {
 	return &postgresResponseRepository{
-		postgresDb: db,
+		postgresdb: db,
 	}
 }
 func GetResponseRepository() ResponseRepository {
-	return newPostgresResponseRepository(Db)
+	return newPostgresResponseRepository(db)
 }

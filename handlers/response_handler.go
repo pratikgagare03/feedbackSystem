@@ -120,10 +120,9 @@ func SaveFeedbackResponse(c *gin.Context) {
 						return
 					}
 					// check if the answer is in the ratings range
-					var rRange models.RatingsRange
-					res := repository.Db.Find(&rRange, "que_id =?", question.ID)
-					if res.Error != nil {
-						logger.Logs.Error().Msg("ERROR: failed to get ratings from db")
+					rRange, err := repository.GetRatingsRepository().FindRatingsByQueID(qna.QuestionID)
+					if err != nil {
+						logger.Logs.Error().Msgf("ERROR: failed to get ratings from db %v", err)
 						c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get ratings from db"})
 						return
 					}

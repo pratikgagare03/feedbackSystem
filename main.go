@@ -4,10 +4,21 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	logger "github.com/pratikgagare03/feedback/logger"
+	"github.com/pratikgagare03/feedback/repository"
 	"github.com/pratikgagare03/feedback/routes"
 )
 
+func init() {
+	logger.StartLogger()
+	err := godotenv.Load(".env")
+	if err != nil {
+		logger.Logs.Fatal().Msgf("Error loading .env file: %v", err)
+	}
+	err = repository.Connect()
+	logger.Logs.Fatal().Msgf("Error connecting to the database: %v", err)
+}
 func setupRoutes(router *gin.Engine) {
 	logger.Logs.Info().Msg("Setting up api routes")
 	apiGroup := router.Group("/api")

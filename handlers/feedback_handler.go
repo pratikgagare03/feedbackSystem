@@ -125,9 +125,9 @@ func CreateFeedback(c *gin.Context) {
 					rRange.MaxRatingsRange = questionInput.MaxRatingsRange
 				}
 				// Insert the ratings range
-				res := repository.Db.Create(rRange)
-				if res.Error != nil {
-					logger.Logs.Error().Msgf("Error while saving Ratings: %v", res.Error)
+				err := repository.GetRatingsRepository().InsertRatings(&rRange)
+				if err != nil {
+					logger.Logs.Error().Msgf("Error while saving Ratings: %v", err)
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save Ratings"})
 					return
 				}

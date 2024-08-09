@@ -109,10 +109,9 @@ func GetFeedbackStats(c *gin.Context) {
 		case models.Ratings:
 			currStats, exists := qIdToStats[response.QuestionID]
 			if !exists {
-				var rRange models.RatingsRange
-				res := repository.Db.Find(&rRange, "que_id =?", response.QuestionID)
-				if res.Error != nil {
-					if res.Error == gorm.ErrRecordNotFound {
+				rRange, err := repository.GetRatingsRepository().FindRatingsByQueID(response.QuestionID)
+				if err != nil {
+					if err == gorm.ErrRecordNotFound {
 						logger.Logs.Error().Msg("ERROR: ratings range not found")
 						c.JSON(http.StatusNotFound, gin.H{"error": "ratings range not found"})
 						return

@@ -30,10 +30,11 @@ func TestSignUp(t *testing.T) {
 	os.Setenv("DBNAME", "test")
 	router := setupRouter()
 	logger.StartLogger()
+	logger.Logs.Info().Msg("starting logger for tests")
 	repository.Connect()
 	t.Run("TestSignUpSuccess", func(t *testing.T) {
 		user := models.User{
-			Email: "test1@example.com",
+			Email: "test2@example.com",
 
 			Password:   "password123",
 			First_name: "Test",
@@ -57,16 +58,12 @@ func TestSignUp(t *testing.T) {
 
 	t.Run("TestSignUpFailMissingRequiredFields", func(t *testing.T) {
 		user := models.User{
-			Email: "test1@example.com",
+			Email: "test2@example.com",
 		}
 
 		body, _ := json.Marshal(user)
 		req, _ := http.NewRequest("POST", "/signup", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
-		err := repository.GetUserRepository().DeleteUserByEmail(user.Email)
-		if err != nil {
-			logger.Logs.Error().Msgf("Error while deleting user: %v", err)
-		}
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 		t.Logf("Response Status: %d", w.Code)
@@ -193,40 +190,80 @@ func TestLogin(t *testing.T) {
 	})
 }
 
+func AuthMiddlewareSet(userType string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("email", "test1@example.com")
+		c.Set("user_type", userType)
+		c.Set("uid", uint(31))
+		c.Next()
+	}
+}
 func TestGetUsers(t *testing.T) {
-	router := setupRouter()
-	req, _ := http.NewRequest("GET", "/users", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+	t.Run("TestGetUsers_Success", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	var response map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &response)
-	assert.Equal(t, 1.0, response["totalCount"])
+		r := gin.Default()
+		r.Use(AuthMiddlewareSet("ADMIN"))
+		r.GET("/users", GetUsers)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/users", nil)
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+	t.Run("TestGetUsersFail_Normal_User", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+
+		// Create a new Gin router and apply the middleware and handler
+		r := gin.Default()
+		r.Use(AuthMiddlewareSet("USER"))
+		r.GET("/users", GetUsers)
+		req, err := http.NewRequest("GET", "/users", nil)
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
 }
 
-// func TestGetUser_Success(t *testing.T) {
-// 	router := setupRouter()
-// 	router.GET("/users/:user_id", GetUser)
+func TestGetUser(t *testing.T) {
+	t.Run("TestGetUserAdmin_Success", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		r := gin.Default()
+		r.Use(AuthMiddlewareSet("ADMIN"))
+		r.GET("/users/:user_id", GetUser)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/users/31", nil)
+		r.ServeHTTP(w, req)
 
-// 	// Mock the repository to return a user
-// 	req, _ := http.NewRequest("GET", "/users/1", nil)
-// 	w := httptest.NewRecorder()
-// 	router.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+	t.Run("TestGetUserSameUser_Success", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		r := gin.Default()
+		r.Use(AuthMiddlewareSet("USER"))
+		r.GET("/users/:user_id", GetUser)
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/users/31", nil)
+		r.ServeHTTP(w, req)
 
-// 	assert.Equal(t, http.StatusOK, w.Code)
-// 	var user models.User
-// 	json.Unmarshal(w.Body.Bytes(), &user)
-// 	assert.Equal(t, "test@example.com", user.Email)
-// }
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+	t.Run("TestGetUserFail_Normal_User", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		r := gin.Default()
+		r.Use(AuthMiddlewareSet("USER"))
+		r.GET("/users/:user_id", GetUser)
+		req, err := http.NewRequest("GET", "/users/23", nil)
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
 
-// func TestGetUser_NotFound(t *testing.T) {
-// 	router := setupRouter()
-// 	router.GET("/users/:user_id", GetUser)
-
-// 	req, _ := http.NewRequest("GET", "/users/1", nil)
-// 	w := httptest.NewRecorder()
-// 	router.ServeHTTP(w, req)
-
-// 	assert.Equal(t, http.StatusNotFound, w.Code)
-// }
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+}

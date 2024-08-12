@@ -17,7 +17,9 @@ func init() {
 		logger.Logs.Fatal().Msgf("Error loading .env file: %v", err)
 	}
 	err = repository.Connect()
-	logger.Logs.Fatal().Msgf("Error connecting to the database: %v", err)
+	if err != nil {
+		logger.Logs.Fatal().Msgf("Error connecting to the database: %v", err)
+	}
 }
 func setupRoutes(router *gin.Engine) {
 	logger.Logs.Info().Msg("Setting up api routes")

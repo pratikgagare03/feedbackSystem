@@ -1,0 +1,41 @@
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"starting logger for tests"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"Connecting to the database"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"Running database migrations"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"Database connection established successfully"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"signing up"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"no user does exist with this email"}
+{"level":"info","time":"2024-08-12T17:26:40+05:30","message":"hashing password"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"user created successfully"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"signing up"}
+{"level":"error","time":"2024-08-12T17:26:41+05:30","message":"error while validating user: Key: 'User.First_name' Error:Field validation for 'First_name' failed on the 'required' tag\nKey: 'User.Password' Error:Field validation for 'Password' failed on the 'required' tag\nKey: 'User.User_type' Error:Field validation for 'User_type' failed on the 'required' tag"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"signing up"}
+{"level":"error","time":"2024-08-12T17:26:41+05:30","message":"user already exists with this email"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"signing up"}
+{"level":"error","time":"2024-08-12T17:26:41+05:30","message":"error while binding json: EOF"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-12T17:26:41+05:30","message":"verifying password"}
+{"level":"info","time":"2024-08-12T17:26:42+05:30","message":"logged in successfully"}
+{"level":"info","time":"2024-08-12T17:26:42+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-12T17:26:42+05:30","message":"verifying password"}
+{"level":"error","time":"2024-08-12T17:26:43+05:30","message":"error while verifying password: crypto/bcrypt: hashedPassword is not the hash of the given password"}
+{"level":"error","time":"2024-08-12T17:26:43+05:30","message":"error while verifying password: password is incorrect"}
+{"level":"info","time":"2024-08-12T17:26:43+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-12T17:26:43+05:30","message":"verifying password"}
+{"level":"error","time":"2024-08-12T17:26:44+05:30","message":"error while verifying password: crypto/bcrypt: hashedPassword is not the hash of the given password"}
+{"level":"error","time":"2024-08-12T17:26:44+05:30","message":"error while verifying password: password is incorrect"}
+{"level":"info","time":"2024-08-12T17:26:44+05:30","message":"logging in"}
+{"level":"error","time":"2024-08-12T17:26:44+05:30","message":"error while searching for email: record not found"}
+{"level":"info","time":"2024-08-12T17:26:44+05:30","message":"logging in"}
+{"level":"info","time":"2024-08-12T17:26:44+05:30","message":"verifying password"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"error while verifying password: crypto/bcrypt: hashedPassword is not the hash of the given password"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"error while verifying password: password is incorrect"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"logging in"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"error while searching for email: record not found"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"getting users"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"users listed successfully"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"getting users"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"error while checking user type: unauthorized to access this resource"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"user found successfully"}
+{"level":"info","time":"2024-08-12T17:26:45+05:30","message":"user found successfully"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"Unauthorized to access this resource"}
+{"level":"error","time":"2024-08-12T17:26:45+05:30","message":"error while matching user type to uid: unauthorized to access this resource"}

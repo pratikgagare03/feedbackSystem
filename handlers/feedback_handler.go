@@ -138,7 +138,7 @@ func CreateFeedback(c *gin.Context) {
 	}
 	// Return the final feedback
 	logger.Logs.Info().Msg("Feedback created successfully")
-	c.JSON(http.StatusCreated, finalFeedback)
+	c.JSON(http.StatusCreated, gin.H{"feedback": finalFeedback})
 }
 
 func GetFeedback(c *gin.Context) {

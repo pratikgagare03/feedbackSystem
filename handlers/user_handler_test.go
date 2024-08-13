@@ -25,6 +25,8 @@ func setupRouter() *gin.Engine {
 	return router
 }
 
+var testUser models.User
+
 func TestSignUp(t *testing.T) {
 	godotenv.Load("../.env")
 	os.Setenv("DBNAME", "test")
@@ -32,9 +34,9 @@ func TestSignUp(t *testing.T) {
 	logger.StartLogger()
 	logger.Logs.Info().Msg("starting logger for tests")
 	repository.Connect()
-	t.Run("TestSignUpSuccess", func(t *testing.T) {
+	t.Run("CreateTestData", func(t *testing.T) {
 		user := models.User{
-			Email: "test2@example.com",
+			Email: "test1@example.com",
 
 			Password:   "password123",
 			First_name: "Test",
@@ -44,12 +46,29 @@ func TestSignUp(t *testing.T) {
 		body, _ := json.Marshal(user)
 		req, _ := http.NewRequest("POST", "/signup", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		json.Unmarshal(w.Body.Bytes(), &user)
+		testUser = user
+	})
+	t.Run("TestSignUpSuccess", func(t *testing.T) {
+		user := models.User{
+			Email: "test1@example.com",
+
+			Password:   "password123",
+			First_name: "Test",
+			User_type:  "USER",
+		}
+
+		body, _ := json.Marshal(user)
+		req, _ := http.NewRequest("POST", "/signup", bytes.NewBuffer(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 		err := repository.GetUserRepository().DeleteUserByEmail(user.Email)
+		router.ServeHTTP(w, req)
 		if err != nil {
 			logger.Logs.Error().Msgf("Error while deleting user: %v", err)
 		}
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
 		t.Logf("Response Status: %d", w.Code)
 		t.Logf("Response Body: %s", w.Body.String())
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -194,7 +213,7 @@ func AuthMiddlewareSet(userType string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("email", "test1@example.com")
 		c.Set("user_type", userType)
-		c.Set("uid", uint(31))
+		c.Set("uid", testUser.ID)
 		c.Next()
 	}
 }

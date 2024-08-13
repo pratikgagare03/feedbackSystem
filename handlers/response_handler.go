@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -155,7 +156,7 @@ func SaveFeedbackResponse(c *gin.Context) {
 func GetAllResponsesForUser(c *gin.Context) {
 	logger.Logs.Info().Msg("Fetching Responses for user")
 	userId := c.GetUint("uid")
-
+	fmt.Println("uuuid", userId)
 	var responses []models.FeedbackResponse
 	var err error
 	dateFrom := c.Query("dateFrom")

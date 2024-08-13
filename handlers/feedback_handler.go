@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -48,6 +49,7 @@ func CreateFeedback(c *gin.Context) {
 	var finalFeedback models.Feedback
 
 	// Copy the values from the input to the final feedback
+	fmt.Println("useerrrrr", c.GetUint("uid"))
 	finalFeedback.UserID = c.GetUint("uid")
 	// Insert the feedback
 	err = repository.GetFeedbackRepository().InsertFeedback(&finalFeedback)
